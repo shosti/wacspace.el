@@ -1,0 +1,42 @@
+(require 'ert)
+
+(ert-deftest wacs-test-defwacspace ()
+  (let ((wacs--config nil))
+    (defwacspace (ruby-mode)
+      (:before run-ruby)
+      (:default
+       (:frame full)))
+    (defwacspace (ruby-mode rinari-minor-mode)
+      (:before rinari-console)
+      (:default
+       (:frame half)))
+    (defwacspace (python-mode)
+      (:before run-python)
+      (:default
+       (:winconf 3win))
+      (:1
+       (:frame full)))
+    (defwacspace (ruby-mode)
+      (:before run-ruby)
+      (:default
+       (:frame half)))
+    (let ((major-mode 'ruby-mode))
+      (should (equal (wacs--get-config)
+                     '((:before . run-ruby)
+                       (:frame . half)))))
+    (let ((major-mode 'ruby-mode)
+          (rinari-minor-mode t))
+      (should (equal (wacs--get-config)
+                     '((:before . rinari-console)
+                       (:frame . half)))))
+    (let ((major-mode 'python-mode))
+      (should (equal (wacs--get-config)
+                     '((:before . run-python)
+                       (:winconf . 3win))))
+      (should (equal (wacs--get-config "1")
+                     '((:before . run-python)
+                       (:frame . full)
+                       (:winconf . 3win)))))))
+
+(ert-deftest wacs-test-winconf ()
+  )
