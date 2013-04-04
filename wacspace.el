@@ -4,6 +4,7 @@
 (require 'dash)
 
 (defvar wacs--config nil)
+(defvar wacs--winconfs nil)
 (defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9))
 
 ;; Helper functions and macros
@@ -75,8 +76,22 @@ configuration options, see the README."
                wacs--config))
        t)))
 
+(cl-defmacro defwinconf ((conf-name) &body body)
+  `(push (cons ',conf-name
+               '(lambda () ,@body))
+         wacs--winconfs))
+
+
+
 ;; (defun wacspace (&optional arg)
 ;;   (interactive "P")
 ;;   (wacs--when-let ((config (wacs--get-config arg)))))
+
+;; Standard configuration
+
+(defwinconf (3win)
+  (split-window-right)
+  (other-window)
+  (split-window-below))
 
 (provide 'wacspace)
