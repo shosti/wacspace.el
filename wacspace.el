@@ -3,6 +3,21 @@
 (require 'cl-lib)
 (require 'dash)
 
+;; Public configuration options
+
+(defvar wacs-fill-screen-fn nil
+  "Function to fill screen.")
+(defvar wacs-left-screen-fn nil
+  "Function to fill the left half of the screen.")
+(defvar wacs-right-screen-fn nil
+  "Function to fill the right half of the screen.")
+(defvar wacs-top-screen-fn nil
+  "Function to fill the top of the screen.")
+(defvar wacs-bottom-screen-fn nil
+  "Function to fill the bottom of the screen.")
+
+;; Private configuration
+
 (defvar wacs--config nil)
 (defvar wacs--winconfs nil)
 (defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9))
