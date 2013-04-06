@@ -1,0 +1,11 @@
+(source "melpa" "http://melpa.milkbox.net/packages/")
+
+(package "wacspace" "0.0.1" "Context-aware workspace management")
+
+(depends-on "dash")
+
+(development
+ (depends-on "ecukes")
+ (depends-on "espuds")
+ (depends-on "inf-ruby")
+ (depends-on "rinari"))
