@@ -6,14 +6,15 @@ Feature: Set up workspace
   Background:
     When I load the following:
     """
-    (defwacspace fundamental-mode nil
-    (:default
+    (defwacspace (emacs-lisp-mode)
+      (:default
+       (:winconf 3winv)))
     """
 
   Scenario: wacspace in emacs-lisp-mode
     Given I am in buffer "*main*"
     And I close all the other windows
     And I turn on emacs-lisp-mode
-    And I press "C-z C-w"
+    And I press "C-c C-w"
     Then there should be 3 windows
     And I should be in buffer "*main*"

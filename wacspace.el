@@ -37,15 +37,15 @@
 
 ;; Public configuration options
 
-(defvar wacs-fill-screen-fn 'display-fill-screen
+(defvar wacs-full-screen-fn '(lambda () nil)
   "Function to fill screen.")
-(defvar wacs-left-screen-fn nil
+(defvar wacs-left-screen-fn '(lambda () nil)
   "Function to fill the left half of the screen.")
-(defvar wacs-right-screen-fn nil
+(defvar wacs-right-screen-fn 'display-right-half
   "Function to fill the right half of the screen.")
-(defvar wacs-top-screen-fn nil
+(defvar wacs-top-screen-fn '(lambda () nil)
   "Function to fill the top of the screen.")
-(defvar wacs-bottom-screen-fn nil
+(defvar wacs-bottom-screen-fn '(lambda () nil)
   "Function to fill the bottom of the screen.")
 
 ;; Private configuration
@@ -66,21 +66,21 @@
   `(let ((,var ,value))
      (if ,var ,@body)))
 
-;; Indentation fix
-(put 'with-property 'lisp-indent-function 1)
-
 (defun wacs--eval-aux-cond (aux-cond)
   (cond ((listp aux-cond)
          (funcall aux-cond))
         ((boundp aux-cond)
          (eval aux-cond))))
 
+;; Indentation fix
+(put 'with-property 'lisp-indent-function 1)
+
 ;; Configuration
 
 (defun wacs--get-config (&optional arg)
   (defun resolve-config (config)
     (let ((arg-key (if arg
-                       (intern (concat ":" arg))
+                       (intern (concat ":" (number-to-string arg)))
                      :default)))
       (append (--filter (not (memq (car it) wacs--numeric-confs))
                         config)
@@ -143,10 +143,11 @@ configuration options, see the README."
   (delete-other-windows)
   (funcall (cdr (assoc conf-name wacs--winconfs))))
 
-(defmacro wacs--set-frame (frame)
+(defun wacs--set-frame (frame)
   (let ((frame-fn
-         (intern (concat "wacs-" (symbol-name frame) "-screen-fn"))))
-    `(funcall ,frame-fn)))
+         (eval
+          (intern (concat "wacs-" (symbol-name frame) "-screen-fn")))))
+    (funcall frame-fn)))
 
 (defun wacspace (&optional arg)
   (interactive "P")
@@ -159,9 +160,10 @@ configuration options, see the README."
            (select-window main-window)))))
 
   (let ((config (wacs--get-config arg))
-        (main-window (car (window-list))))
+        (main-window (selected-window)))
     (unless config
-      (message "No wacspace configuration available for the current mode."))
+      (message
+       "No wacspace configuration available for the current mode."))
     (with-property (frame)
       (wacs--set-frame frame))
     (with-property (winconf)
@@ -189,3 +191,5 @@ configuration options, see the README."
 (provide 'wacspace)
 
 ;;; wacspace.el ends here
+(let ((frame 'full))
+  (wacs--set-frame frame))

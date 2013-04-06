@@ -14,9 +14,18 @@
   (lambda (mode)
     (funcall (intern mode) '0)))
 
+(And "^the frame should be \\([a-z]+\\)\\( aligned\\)?"
+  (lambda (alignment _)
+    (should (equal frame-alignment alignment))))
+
 (And "^the \\([0-9]+\\)\\(st\\|nd\\|rd\\|th\\) window should be in buffer \"\\([^\"]+\\)\"$"
-  (lambda (num _ buffer-name)
-    ))
+  (lambda (n _ expected-name)
+    (save-excursion
+      (select-window (window-at 1 1))
+      (should (equal (buffer-name
+                      (window-buffer
+                       (nth (- (string-to-int "2") 1) (window-list))))
+                     expected-name)))))
 
 (Then "^there should be \\([0-9]+\\) windows$"
   (lambda (wins)

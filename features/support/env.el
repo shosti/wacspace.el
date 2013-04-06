@@ -21,21 +21,35 @@
 (require 'ruby-mode)
 (require 'rinari)
 
-
 (Setup
  (window-configuration-to-register :pre-ecukes)
+ (defvar frame-alignment nil)
+ (setq wacs-full-screen-fn
+       '(lambda ()
+          (setq frame-alignment "full")))
+ (setq wacs-right-screen-fn
+       '(lambda ()
+          (setq frame-alignment "right")))
+ (setq wacs-left-screen-fn
+       '(lambda ()
+          (setq frame-alignment "left")))
+ (setq wacs-top-screen-fn
+       '(lambda ()
+          (setq frame-alignment "top")))
+ (setq wacs-bottom-screen-fn
+       '(lambda ()
+          (setq frame-alignment "bottom")))
+
  (get-buffer-create "*main*")
- (global-set-key (kbd "C-c C-w") 'wacspace)
- )
+ (global-set-key (kbd "C-c C-w") 'wacspace))
 
 (Before
- (jump-to-register :pre-ecukes)
- )
+ (jump-to-register :pre-ecukes))
 
 (After
  ;; After each scenario is run
  )
 
 (Teardown
-;;
+ ;;
  )
