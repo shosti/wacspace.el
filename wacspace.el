@@ -5,7 +5,7 @@
 
 ;; Public configuration options
 
-(defvar wacs-fill-screen-fn nil
+(defvar wacs-fill-screen-fn 'display-fill-screen
   "Function to fill screen.")
 (defvar wacs-left-screen-fn nil
   "Function to fill the left half of the screen.")
@@ -24,9 +24,18 @@
 
 ;; Helper functions and macros
 
-(cl-defmacro wacs--when-let ((var value) &rest body)
+(cl-defmacro wacs--when-let ((var value) &body body)
+  (declare (indent 1))
   `(let ((,var ,value))
      (when ,var ,@body)))
+
+(cl-defmacro wacs--if-let ((var value) &body body)
+  (declare (indent 1))
+  `(let ((,var ,value))
+     (if ,var ,@body)))
+
+;; Indentation fix
+(put 'with-property 'lisp-indent-function 1)
 
 (defun wacs--eval-aux-cond (aux-cond)
   (cond ((listp aux-cond)
@@ -96,17 +105,41 @@ configuration options, see the README."
                '(lambda () ,@body))
          wacs--winconfs))
 
+;; Interactive functions
 
+(defun wacs--run-winconf (conf-name)
+  (delete-other-windows)
+  (funcall (cdr (assoc conf-name wacs--winconfs))))
 
-;; (defun wacspace (&optional arg)
-;;   (interactive "P")
-;;   (wacs--when-let ((config (wacs--get-config arg)))))
+(defmacro wacs--set-frame (frame)
+  (let ((frame-fn
+         (intern (concat "wacs-" (symbol-name frame) "-screen-fn"))))
+    `(funcall ,frame-fn)))
+
+(defun wacspace (&optional arg)
+  (interactive "P")
+
+  (cl-defmacro with-property ((prop) &body body)
+    (let ((prop-keyword (intern (concat ":" (symbol-name prop)))))
+      `(let ((,prop (cdr (assoc ,prop-keyword config))))
+         (when ,prop
+           ,@body
+           (select-window main-window)))))
+
+  (let ((config (wacs--get-config arg))
+        (main-window (car (window-list))))
+    (unless config
+      (message "No wacspace configuration available for the current mode."))
+    (with-property (frame)
+      (wacs--set-frame frame))
+    (with-property (winconf)
+      (wacs--run-winconf winconf))))
 
 ;; Standard configuration
 
-(defwinconf (3win)
+(defwinconf (3winv)
   (split-window-right)
-  (other-window)
+  (other-window 1)
   (split-window-below))
 
 (provide 'wacspace)
