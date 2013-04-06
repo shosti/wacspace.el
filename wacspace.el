@@ -174,6 +174,18 @@ configuration options, see the README."
   (other-window 1)
   (split-window-below))
 
+(defwinconf (2winh)
+  (split-window-below))
+
+(defwinconf (2winv)
+  (split-window-right))
+
+(defwinconf (4win)
+  (split-window-right)
+  (split-window-below)
+  (other-window 2)
+  (split-window-below))
+
 (provide 'wacspace)
 
 ;;; wacspace.el ends here
