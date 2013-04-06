@@ -47,7 +47,7 @@
   "Function to fill the top of the screen.")
 (defvar wacs-bottom-screen-fn '(lambda () nil)
   "Function to fill the bottom of the screen.")
-
+3
 ;; Private configuration
 
 (defvar wacs--config nil)
@@ -71,6 +71,9 @@
          (funcall aux-cond))
         ((boundp aux-cond)
          (symbol-value aux-cond))))
+
+(defun wacs--select-main-window ()
+  (select-window (window-at 1 1)))
 
 ;; Indentation fix
 (put 'with-property 'lisp-indent-function 1)
@@ -101,7 +104,10 @@ condition. The auxiliary condition can either be a variable (such
 as a minor mode) or a lambda. For full documentation of
 configuration options, see the README."
   (defun list->dotted-pair (list)
-    (cons (car list) (cadr list)))
+    (let ((snd (cadr list)))
+      (if (and (listp snd) (= (length snd) 2))
+          (cons (car list) (list->dotted-pair snd))
+        (cons (car list) (cadr list)))))
 
   (defun process-config (config)
     (let ((default-conf (-map 'list->dotted-pair
@@ -141,7 +147,8 @@ configuration options, see the README."
 
 (defun wacs--run-winconf (conf-name)
   (delete-other-windows)
-  (funcall (cdr (assoc conf-name wacs--winconfs))))
+  (funcall (cdr (assoc conf-name wacs--winconfs)))
+  (wacs--select-main-window))
 
 (defun wacs--set-frame (frame)
   (let ((frame-fn
@@ -156,18 +163,37 @@ configuration options, see the README."
     (let ((prop-keyword (intern (concat ":" (symbol-name prop)))))
       `(let ((,prop (cdr (assoc ,prop-keyword config))))
          (when ,prop
-           ,@body
-           (select-window main-window)))))
+           ,@body))))
+
+  (defun set-up-windows (config main-buffer)
+    (-each (-take (length (window-list))
+                  '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
+           (lambda (win-key)
+             (wacs--when-let (buffer-conf (cdr (assq win-key config)))
+               (wacs--select-main-window)
+               (other-window (string-to-number
+                              (substring (symbol-name win-key) -1)))
+               (cl-case (car buffer-conf)
+                 (:buffer (switch-to-buffer
+                           (if (eq (cdr buffer-conf) :main)
+                               main-buffer
+                             (cdr buffer-conf))))
+                 (:cmd (funcall (cdr buffer-conf)))))))
+    (--each (window-list)
+      (when (equal (window-buffer it)
+                   main-buffer)
+        (select-window it))))
 
   (let ((config (wacs--get-config arg))
-        (main-window (selected-window)))
+        (main-buffer (current-buffer)))
     (unless config
       (message
        "No wacspace configuration available for the current mode."))
     (with-property (frame)
       (wacs--set-frame frame))
     (with-property (winconf)
-      (wacs--run-winconf winconf))))
+      (wacs--run-winconf winconf))
+    (set-up-windows config main-buffer)))
 
 ;; Standard configuration
 
@@ -191,5 +217,3 @@ configuration options, see the README."
 (provide 'wacspace)
 
 ;;; wacspace.el ends here
-(let ((frame 'full))
-  (wacs--set-frame frame))
