@@ -41,7 +41,7 @@
   "Function to fill screen.")
 (defvar wacs-left-screen-fn '(lambda () nil)
   "Function to fill the left half of the screen.")
-(defvar wacs-right-screen-fn 'display-right-half
+(defvar wacs-right-screen-fn '(lambda () nil)
   "Function to fill the right half of the screen.")
 (defvar wacs-top-screen-fn '(lambda () nil)
   "Function to fill the top of the screen.")
@@ -70,7 +70,7 @@
   (cond ((listp aux-cond)
          (funcall aux-cond))
         ((boundp aux-cond)
-         (eval aux-cond))))
+         (symbol-value aux-cond))))
 
 ;; Indentation fix
 (put 'with-property 'lisp-indent-function 1)
