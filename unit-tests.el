@@ -39,4 +39,10 @@
                        (:winconf . 3win)))))))
 
 (ert-deftest wacs-test-winconf ()
-  )
+  (let ((wacs--winconfs nil))
+    (defwinconf (3winv)
+      (split-window-right)
+      (other-window 1)
+      (split-window-below))
+    (wacs--run-winconf '3winv)
+    (should (= (length (window-list)) 3))))
