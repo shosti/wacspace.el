@@ -24,21 +24,21 @@
 (Setup
  (window-configuration-to-register :pre-ecukes)
  (defvar frame-alignment nil)
- (setq wacs-full-screen-fn
-       '(lambda ()
-          (setq frame-alignment "full")))
- (setq wacs-right-screen-fn
-       '(lambda ()
-          (setq frame-alignment "right")))
- (setq wacs-left-screen-fn
-       '(lambda ()
-          (setq frame-alignment "left")))
- (setq wacs-top-screen-fn
-       '(lambda ()
-          (setq frame-alignment "top")))
- (setq wacs-bottom-screen-fn
-       '(lambda ()
-          (setq frame-alignment "bottom")))
+ (wacs-set-frame-fn full
+                    (lambda ()
+                      (setq frame-alignment "full")))
+ (wacs-set-frame-fn right
+                    (lambda ()
+                      (setq frame-alignment "right")))
+ (wacs-set-frame-fn left
+                    (lambda ()
+                      (setq frame-alignment "left")))
+ (wacs-set-frame-fn top
+                    (lambda ()
+                      (setq frame-alignment "top")))
+ (wacs-set-frame-fn bottom
+                    (lambda ()
+                      (setq frame-alignment "bottom")))
 
  (get-buffer-create "*main*")
  (global-set-key (kbd "C-c C-w") 'wacspace))

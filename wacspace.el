@@ -3,16 +3,18 @@
 ;; Copyright © 2013 Emanuel Evans
 
 ;; Author: Emanuel Evans <emanuel.evans@gmail.com>
+;; URL: http://github.com/shosti/wacspace.el
 ;; Version: 0.1
 ;; Created: 26 March 2013
 ;; Keywords: workspace
+;; Package-Requires: ((dash "1.1.0"))
 
 ;; This file is not part of GNU Emacs.
 
 ;;; Commentary:
 
 ;; Provides context-aware workspace management for Emacs.  See
-;; http://github.com/shosti/wacspace.el.git for full documentation.
+;; http://github.com/shosti/wacspace.el for full documentation.
 
 ;;; License:
 
@@ -36,32 +38,11 @@
 (require 'cl-lib)
 (require 'dash)
 
-;; Public configuration options
-
-;;;###autoload
-(defvar wacs-full-screen-fn '(lambda () nil)
-  "Function to fill screen.")
-
-;;;###autoload
-(defvar wacs-left-screen-fn '(lambda () nil)
-  "Function to fill the left half of the screen.")
-
-;;;###autoload
-(defvar wacs-right-screen-fn '(lambda () nil)
-  "Function to fill the right half of the screen.")
-
-;;;###autoload
-(defvar wacs-top-screen-fn '(lambda () nil)
-  "Function to fill the top of the screen.")
-
-;;;###autoload
-(defvar wacs-bottom-screen-fn '(lambda () nil)
-  "Function to fill the bottom of the screen.")
-
 ;; Private configuration
 
 (defvar wacs--config nil)
 (defvar wacs--winconfs nil)
+(defvar wacs--frame-fns nil)
 (defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9))
 
 ;; Helper functions and macros
@@ -150,13 +131,17 @@ configuration options, see the README."
        t)))
 
 ;;;###autoload
-(cl-defmacro defwinconf ((conf-name) &body body)
+(cl-defmacro defwinconf (conf-name &body body)
   "Define a wacspace window configuration. This is defined as a
 function (e.g. a sequence of window splitting commands). The
 function need not stop with the original window active."
   `(push (cons ',conf-name
                '(lambda () ,@body))
          wacs--winconfs))
+
+;;;###autoload
+(defmacro wacs-set-frame-fn (frame fn)
+  `(push (cons ',frame ',fn) wacs--frame-fns))
 
 ;; Interactive functions
 
@@ -166,10 +151,8 @@ function need not stop with the original window active."
   (wacs--select-main-window))
 
 (defun wacs--set-frame (frame)
-  (let ((frame-fn
-         (eval
-          (intern (concat "wacs-" (symbol-name frame) "-screen-fn")))))
-    (funcall frame-fn)))
+  (wacs--when-let (frame-fn (cdr (assq frame wacs--frame-fns)))
+      (funcall frame-fn)))
 
 ;;;###autoload
 (defun wacspace (&optional arg)
@@ -214,18 +197,18 @@ function need not stop with the original window active."
 
 ;; Standard configuration
 
-(defwinconf (3winv)
+(defwinconf 3winv
   (split-window-right)
   (other-window 1)
   (split-window-below))
 
-(defwinconf (2winh)
+(defwinconf 2winh
   (split-window-below))
 
-(defwinconf (2winv)
+(defwinconf 2winv
   (split-window-right))
 
-(defwinconf (4win)
+(defwinconf 4win
   (split-window-right)
   (split-window-below)
   (other-window 2)
