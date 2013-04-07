@@ -63,9 +63,6 @@
         ((boundp aux-cond)
          (symbol-value aux-cond))))
 
-(defun wacs--select-main-window ()
-  (select-window (window-at 1 1))) ;rather hackey--better way?
-
 ;; Indentation fixes
 
 (put 'with-property 'lisp-indent-function 1)
@@ -150,8 +147,10 @@ paramaters should be passed unquoted."
 
 (defun wacs--run-winconf (conf-name)
   (delete-other-windows)
-  (funcall (cdr (assoc conf-name wacs--winconfs)))
-  (wacs--select-main-window))
+  (let ((main-window (selected-window)))
+    (funcall (cdr (assoc conf-name wacs--winconfs)))
+    (select-window main-window)
+    main-window))
 
 (defun wacs--set-frame (frame)
   (wacs--when-let (frame-fn (cdr (assq frame wacs--frame-fns)))
@@ -168,12 +167,12 @@ paramaters should be passed unquoted."
          (when ,prop
            ,@body))))
 
-  (defun set-up-windows (config main-buffer)
+  (defun set-up-windows (config main-buffer main-window)
     (-each (-take (length (window-list))
                   '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
            (lambda (win-key)
              (wacs--when-let (buffer-conf (cdr (assq win-key config)))
-               (wacs--select-main-window)
+               (select-window main-window)
                (other-window (string-to-number
                               (substring (symbol-name win-key) -1)))
                (cl-case (car buffer-conf)
@@ -182,10 +181,10 @@ paramaters should be passed unquoted."
                                main-buffer
                              (cdr buffer-conf))))
                  (:cmd (funcall (cdr buffer-conf)))))))
-    (--each (window-list)
-      (when (equal (window-buffer it)
-                   main-buffer)
-        (select-window it))))
+    (select-window main-window)
+    (--each-while (window-list)
+        (not (equal (window-buffer) main-buffer))
+      (other-window 1)))
 
   (let ((config (wacs--get-config arg))
         (main-buffer (current-buffer)))
@@ -197,9 +196,10 @@ paramaters should be passed unquoted."
         (funcall before)))
     (with-property (frame)
       (wacs--set-frame frame))
-    (with-property (winconf)
-      (wacs--run-winconf winconf))
-    (set-up-windows config main-buffer)))
+    (let ((main-window
+           (with-property (winconf)
+             (wacs--run-winconf winconf))))
+      (set-up-windows config main-buffer main-window))
     (with-property (after)
       (save-window-excursion
         (funcall after)))))
