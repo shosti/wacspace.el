@@ -192,11 +192,17 @@ paramaters should be passed unquoted."
     (unless config
       (message
        "No wacspace configuration available for the current mode."))
+    (with-property (before)
+      (save-window-excursion
+        (funcall before)))
     (with-property (frame)
       (wacs--set-frame frame))
     (with-property (winconf)
       (wacs--run-winconf winconf))
     (set-up-windows config main-buffer)))
+    (with-property (after)
+      (save-window-excursion
+        (funcall after)))))
 
 ;; Standard configuration
 
