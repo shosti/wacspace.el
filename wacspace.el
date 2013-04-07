@@ -1,10 +1,10 @@
-;;; wacspace.el --- emACS WorkSPACE -*- lexical-binding: t -*-
+;;; wacspace.el --- The WACky WorkSPACE manager for emACS -*- lexical-binding: t -*-
 
 ;; Copyright © 2013 Emanuel Evans
 
 ;; Author: Emanuel Evans <emanuel.evans@gmail.com>
 ;; URL: http://github.com/shosti/wacspace.el
-;; Version: 0.1
+;; Version: 0.0
 ;; Created: 26 March 2013
 ;; Keywords: workspace
 ;; Package-Requires: ((dash "1.1.0"))
@@ -67,6 +67,7 @@
   (select-window (window-at 1 1))) ;rather hackey--better way?
 
 ;; Indentation fixes
+
 (put 'with-property 'lisp-indent-function 1)
 
 ;; Configuration
@@ -141,6 +142,8 @@ function need not stop with the original window active."
 
 ;;;###autoload
 (defmacro wacs-set-frame-fn (frame fn)
+  "Set the given frame parameter to the given function. Both
+paramaters should be passed unquoted."
   `(push (cons ',frame ',fn) wacs--frame-fns))
 
 ;; Interactive functions
@@ -152,7 +155,7 @@ function need not stop with the original window active."
 
 (defun wacs--set-frame (frame)
   (wacs--when-let (frame-fn (cdr (assq frame wacs--frame-fns)))
-      (funcall frame-fn)))
+    (funcall frame-fn)))
 
 ;;;###autoload
 (defun wacspace (&optional arg)
