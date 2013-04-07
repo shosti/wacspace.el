@@ -7,7 +7,6 @@ Feature: Set up Ruby/Rails workspace
     When I load the following:
     """
     (defwacspace (ruby-mode rinari-minor-mode)
-      (:before rinari-console)
       (:default
        (:winconf 3winv)
        (:aux1 (:buffer "*rails console*"))
