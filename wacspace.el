@@ -43,6 +43,7 @@
 (defvar wacs--config nil)
 (defvar wacs--winconfs nil)
 (defvar wacs--frame-fns nil)
+(defvar wacs--saved-workspaces (make-hash-table :test 'equal))
 (defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9))
 
 ;; Helper functions and macros
@@ -166,7 +167,8 @@ paramaters should be passed unquoted."
     (let ((prop-keyword (intern (concat ":" (symbol-name prop)))))
       `(let ((,prop (cdr (assoc ,prop-keyword config))))
          (when ,prop
-           ,@body))))
+           ,@body
+           (select-window main-window)))))
 
   (defun set-up-windows (config main-buffer)
     (-each (-take (length (window-list))
@@ -188,15 +190,57 @@ paramaters should be passed unquoted."
         (select-window it))))
 
   (let ((config (wacs--get-config arg))
+        (main-window (selected-window))
         (main-buffer (current-buffer)))
-    (unless config
-      (message
-       "No wacspace configuration available for the current mode."))
-    (with-property (frame)
-      (wacs--set-frame frame))
-    (with-property (winconf)
-      (wacs--run-winconf winconf))
-    (set-up-windows config main-buffer)))
+    (unless nil
+      (unless config
+        (message
+         "No wacspace configuration available for the current mode."))
+      (with-property (frame)
+        (wacs--set-frame frame))
+      (with-property (before)
+        (funcall before))
+      (with-property (winconf)
+        (wacs--run-winconf winconf))
+      (set-up-windows config main-buffer)
+      (with-property (after)
+        (funcall after))
+      ;(wacspace-save arg)
+      )))
+
+(defun wacspace-save (&optional arg)
+  (interactive "P")
+  (let* ((config-symbol-alist
+          (gethash (current-buffer)
+                   wacs--saved-workspaces))
+         (workspace-symbol
+          (intern
+           (concat ":"
+                   (apply
+                    'concat
+                    (-interpose "-"
+                                (--map (buffer-name
+                                        (window-buffer it))
+                                       (window-list))))
+                   (when arg (concat "-" (number-to-string arg))))))
+         (new-config-alist
+          (push (cons (or arg :default) workspace-symbol)
+                config-symbol-alist)))
+    (--each (window-list)
+      (puthash (window-buffer it)
+               new-config-alist
+               wacs--saved-workspaces))
+    (window-configuration-to-register workspace-symbol)))
+
+(defun wacspace-restore (&optional arg)
+  (wacs--when-let (register-sym
+                   (cdr
+                    (assoc (or arg :default)
+                           (gethash (current-buffer)
+                                    wacs--saved-workspaces))))
+    (save-excursion
+      (jump-to-register register-sym))
+    t))
 
 ;; Standard configuration
 
