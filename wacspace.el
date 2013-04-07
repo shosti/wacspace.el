@@ -11,7 +11,8 @@
 
 ;;; Commentary:
 
-;; Provides context-aware workspace management for Emacs.
+;; Provides context-aware workspace management for Emacs.  See
+;; http://github.com/shosti/wacspace.el.git for full documentation.
 
 ;;; License:
 
@@ -37,17 +38,26 @@
 
 ;; Public configuration options
 
+;;;###autoload
 (defvar wacs-full-screen-fn '(lambda () nil)
   "Function to fill screen.")
+
+;;;###autoload
 (defvar wacs-left-screen-fn '(lambda () nil)
   "Function to fill the left half of the screen.")
+
+;;;###autoload
 (defvar wacs-right-screen-fn '(lambda () nil)
   "Function to fill the right half of the screen.")
+
+;;;###autoload
 (defvar wacs-top-screen-fn '(lambda () nil)
   "Function to fill the top of the screen.")
+
+;;;###autoload
 (defvar wacs-bottom-screen-fn '(lambda () nil)
   "Function to fill the bottom of the screen.")
-3
+
 ;; Private configuration
 
 (defvar wacs--config nil)
@@ -73,9 +83,9 @@
          (symbol-value aux-cond))))
 
 (defun wacs--select-main-window ()
-  (select-window (window-at 1 1)))
+  (select-window (window-at 1 1))) ;rather hackey--better way?
 
-;; Indentation fix
+;; Indentation fixes
 (put 'with-property 'lisp-indent-function 1)
 
 ;; Configuration
@@ -98,10 +108,11 @@
     (resolve-config (if config config
                       (cdr (assq :default mode-config-list))))))
 
+;;;###autoload
 (cl-defmacro defwacspace ((mode &optional aux-cond) &body configuration)
   "Define a wacspace for a major mode and an optional auxiliary
 condition. The auxiliary condition can either be a variable (such
-as a minor mode) or a lambda. For full documentation of
+as a minor mode) or an inline lambda. For full documentation of
 configuration options, see the README."
   (defun list->dotted-pair (list)
     (let ((snd (cadr list)))
@@ -138,7 +149,11 @@ configuration options, see the README."
                wacs--config))
        t)))
 
+;;;###autoload
 (cl-defmacro defwinconf ((conf-name) &body body)
+  "Define a wacspace window configuration. This is defined as a
+function (e.g. a sequence of window splitting commands). The
+function need not stop with the original window active."
   `(push (cons ',conf-name
                '(lambda () ,@body))
          wacs--winconfs))
@@ -156,7 +171,9 @@ configuration options, see the README."
           (intern (concat "wacs-" (symbol-name frame) "-screen-fn")))))
     (funcall frame-fn)))
 
+;;;###autoload
 (defun wacspace (&optional arg)
+  "Set up your Emacs workspace based on your wacspace configuration."
   (interactive "P")
 
   (cl-defmacro with-property ((prop) &body body)
