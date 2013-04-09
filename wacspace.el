@@ -216,8 +216,9 @@ paramaters should be passed unquoted."
           (gethash (current-buffer)
                    wacs--saved-workspaces))
          (workspace-symbol (cl-gensym))
+         (frame (cdr (assq :frame (wacs--get-config arg))))
          (new-config-alist
-          (push (cons (or arg :default) workspace-symbol)
+          (push (cons (or arg :default) (cons workspace-symbol frame))
                 config-symbol-alist)))
     (--each (window-list)
       (puthash (window-buffer it)
@@ -228,14 +229,17 @@ paramaters should be passed unquoted."
 (defun wacspace-restore (&optional arg)
   (let ((buffer (current-buffer)))
     (ignore-errors
-      (wacs--when-let (register-sym
-                       (cdr
-                        (assoc (or arg :default)
-                               (gethash buffer
-                                        wacs--saved-workspaces))))
-        (jump-to-register register-sym)
-        (wacs--switch-to-window-with-buffer buffer)
-        t))))
+      (let* ((conf (cdr
+                    (assoc (or arg :default)
+                           (gethash buffer
+                                    wacs--saved-workspaces))))
+             (register-sym (car conf))
+             (frame (cdr conf)))
+        (when register-sym
+          (jump-to-register register-sym)
+          (wacs--switch-to-window-with-buffer buffer)
+          (wacs--set-frame frame)
+          t)))))
 
 ;; Standard configuration
 

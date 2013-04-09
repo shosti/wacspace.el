@@ -93,3 +93,28 @@ Feature: Save/restore workspace
     Then there should be 2 windows
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*eshell*"
+
+  Scenario: Prefixes don't affect each other
+    When I press "C-x o"
+    And I press "C-x 2"
+    And I press "C-x o"
+    And I press "C-x o"
+    And I press "C-c s"
+    And I press "C-2 C-c w"
+    And I press "C-c w"
+    Then there should be 3 windows
+    And I should be in buffer "*main*"
+    And the 2nd window should be in buffer "*ruby*"
+
+  Scenario: Saving and restoring should save the frame
+    When I press "C-1 C-c w"
+    And I press "C-2 C-c w"
+    And I press "C-1 C-c w"
+    Then the frame should be full aligned
+
+  Scenario: The frame should be restored even if I'm not in the original buffer
+    When I press "C-1 C-c w"
+    And I press "C-2 C-c w"
+    And I switch to buffer "*ruby*"
+    And I press "C-1 C-c w"
+    Then the frame should be full aligned

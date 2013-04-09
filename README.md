@@ -46,6 +46,16 @@ prefix will access that workspace. The behavior is intuitive but a
 little bit subtle—if you want concrete examples of how it works, check
 out [features/wacs-save.feature](features/wacs-save.feature).
 
+The frame size is not saved/restored like the rest of the
+configuration. Instead, if you specify a frame alignment for a prefix
+key in your configuration, that frame alignment will always be
+restored when you use wacspace with that prefix key on windows set up
+with that configuration. This behavior is subject to change in future
+versions of wacspace. For instance, with the example configuration
+below, if you set up a workspace with prefix key `1`, any time you run
+`C-1 wacspace` in any of the windows set up by that workspace, the
+frame will be full.
+
 ## Configuration
 
 Configuring wacspace is a little harder, but you usually only need to
