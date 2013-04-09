@@ -81,3 +81,15 @@ Feature: Save/restore workspace
     Then there should be 2 windows
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*ruby*"
+
+  Scenario: Save and restore without a wacspace configuration
+    When I turn on python-mode
+    And I press "C-x o"
+    And I run eshell
+    And I press "C-x o"
+    And I press "C-c s"
+    And I press "C-x 1"
+    And I press "C-c w"
+    Then there should be 2 windows
+    And I should be in buffer "*main*"
+    And the 2nd window should be in buffer "*eshell*"
