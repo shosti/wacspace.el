@@ -227,14 +227,15 @@ paramaters should be passed unquoted."
 
 (defun wacspace-restore (&optional arg)
   (let ((buffer (current-buffer)))
-    (wacs--when-let (register-sym
-                     (cdr
-                      (assoc (or arg :default)
-                             (gethash buffer
-                                      wacs--saved-workspaces))))
-      (jump-to-register register-sym)
-      (wacs--switch-to-window-with-buffer buffer)
-      t)))
+    (ignore-errors
+      (wacs--when-let (register-sym
+                       (cdr
+                        (assoc (or arg :default)
+                               (gethash buffer
+                                        wacs--saved-workspaces))))
+        (jump-to-register register-sym)
+        (wacs--switch-to-window-with-buffer buffer)
+        t))))
 
 ;; Standard configuration
 
