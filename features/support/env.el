@@ -41,7 +41,8 @@
                       (setq frame-alignment "bottom")))
 
  (get-buffer-create "*main*")
- (global-set-key (kbd "C-c C-w") 'wacspace))
+ (global-set-key (kbd "C-c C-w") 'wacspace)
+ (global-set-key (kbd "C-c C-s") 'wacspace-save))
 
 (Before
  (jump-to-register :pre-ecukes))
