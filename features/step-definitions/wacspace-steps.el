@@ -34,3 +34,8 @@
                (length (window-list))) nil
             "There are %s windows when there should be %s"
             (length (window-list)) wins)))
+
+(And "^I kill the current buffer$"
+       (lambda ()
+         (let ((kill-buffer-query-functions nil))
+           (kill-buffer (current-buffer)))))
