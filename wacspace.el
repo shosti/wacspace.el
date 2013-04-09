@@ -64,6 +64,11 @@
         ((boundp aux-cond)
          (symbol-value aux-cond))))
 
+(defun wacs--switch-to-window-with-buffer (buffer)
+  (--each-while (window-list)
+        (not (equal (window-buffer) buffer))
+      (other-window 1)))
+
 ;; Indentation fixes
 
 (put 'with-property 'lisp-indent-function 1)
@@ -183,43 +188,34 @@ paramaters should be passed unquoted."
                              (cdr buffer-conf))))
                  (:cmd (funcall (cdr buffer-conf)))))))
     (select-window main-window)
-    (--each-while (window-list)
-        (not (equal (window-buffer) main-buffer))
-      (other-window 1)))
+    (wacs--switch-to-window-with-buffer main-buffer))
 
-  (let ((config (wacs--get-config arg))
-        (main-buffer (current-buffer)))
-    (unless config
-      (message
-       "No wacspace configuration available for the current mode."))
-    (with-property (before)
-      (save-window-excursion
-        (funcall before)))
-    (with-property (frame)
-      (wacs--set-frame frame))
-    (let ((main-window
-           (with-property (winconf)
-             (wacs--run-winconf winconf))))
-      (set-up-windows config main-buffer main-window))
-    (with-property (after)
-      (save-window-excursion
-        (funcall after)))))
+  (unless (wacspace-restore arg)
+    (let ((config (wacs--get-config arg))
+          (main-buffer (current-buffer)))
+      (unless config
+        (message
+         "No wacspace configuration available for the current mode."))
+      (with-property (before)
+        (save-window-excursion
+          (funcall before)))
+      (with-property (frame)
+        (wacs--set-frame frame))
+      (let ((main-window
+             (with-property (winconf)
+               (wacs--run-winconf winconf))))
+        (set-up-windows config main-buffer main-window))
+      (with-property (after)
+        (save-window-excursion
+          (funcall after)))
+      (wacspace-save arg))))
 
 (defun wacspace-save (&optional arg)
   (interactive "P")
   (let* ((config-symbol-alist
           (gethash (current-buffer)
                    wacs--saved-workspaces))
-         (workspace-symbol
-          (intern
-           (concat ":"
-                   (apply
-                    'concat
-                    (-interpose "-"
-                                (--map (buffer-name
-                                        (window-buffer it))
-                                       (window-list))))
-                   (when arg (concat "-" (number-to-string arg))))))
+         (workspace-symbol (cl-gensym))
          (new-config-alist
           (push (cons (or arg :default) workspace-symbol)
                 config-symbol-alist)))
@@ -230,14 +226,15 @@ paramaters should be passed unquoted."
     (window-configuration-to-register workspace-symbol)))
 
 (defun wacspace-restore (&optional arg)
-  (wacs--when-let (register-sym
-                   (cdr
-                    (assoc (or arg :default)
-                           (gethash (current-buffer)
-                                    wacs--saved-workspaces))))
-    (save-excursion
-      (jump-to-register register-sym))
-    t))
+  (let ((buffer (current-buffer)))
+    (wacs--when-let (register-sym
+                     (cdr
+                      (assoc (or arg :default)
+                             (gethash buffer
+                                      wacs--saved-workspaces))))
+      (jump-to-register register-sym)
+      (wacs--switch-to-window-with-buffer buffer)
+      t)))
 
 ;; Standard configuration
 
