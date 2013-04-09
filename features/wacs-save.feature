@@ -24,11 +24,11 @@ Feature: Save/restore workspace
     """
     And I am in buffer "*main*"
     And I turn on ruby-mode
-    And I press "C-c C-w"
+    And I press "C-c w"
 
   Scenario: Restore workspace without saving
     When I press "C-x 0"
-    And I press "C-c C-w"
+    And I press "C-c w"
     Then there should be 2 windows
     And I should be in buffer "*ruby*"
     And the 1st window should be in buffer "*main*"
@@ -38,8 +38,8 @@ Feature: Save/restore workspace
     And I press "C-x 2"
     And I press "C-x o"
     And I run eshell
-    And I press "C-c C-s"
-    And I press "C-c C-w"
+    And I press "C-c s"
+    And I press "C-c w"
     Then there should be 3 windows
     And I should be in buffer "*eshell*"
     And the 1st window should be in buffer "*main*"

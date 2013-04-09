@@ -15,6 +15,6 @@ Feature: Set up workspace
     Given I am in buffer "*main*"
     And I close all the other windows
     And I turn on emacs-lisp-mode
-    And I press "C-c C-w"
+    And I press "C-c w"
     Then there should be 3 windows
     And I should be in buffer "*main*"

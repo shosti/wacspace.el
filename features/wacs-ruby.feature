@@ -43,7 +43,7 @@ Feature: Set up Ruby/Rails workspace
     When I am in buffer "*main*"
     And I turn on ruby-mode
     And I turn on rinari-minor-mode
-    And I press "C-c C-w"
+    And I press "C-c w"
     Then there should be 3 windows
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*rails console*"
@@ -53,7 +53,7 @@ Feature: Set up Ruby/Rails workspace
     When I am in buffer "*main*"
     And I turn on ruby-mode
     And I turn on rinari-minor-mode
-    And I press "C-3 C-c C-w"
+    And I press "C-3 C-c w"
     Then there should be 2 windows
     And I should be in buffer "*main*"
     And the frame should be right aligned
@@ -63,7 +63,7 @@ Feature: Set up Ruby/Rails workspace
     When I am in buffer "*main*"
     And I turn on ruby-mode
     And I turn off rinari-minor-mode
-    And I press "C-c C-w"
+    And I press "C-c w"
     Then there should be 2 windows
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*ruby*"

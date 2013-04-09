@@ -41,10 +41,12 @@
                       (setq frame-alignment "bottom")))
 
  (get-buffer-create "*main*")
- (global-set-key (kbd "C-c C-w") 'wacspace)
- (global-set-key (kbd "C-c C-s") 'wacspace-save))
+ (global-set-key (kbd "C-c w") 'wacspace)
+ (global-set-key (kbd "C-c s") 'wacspace-save))
 
 (Before
+ (setq wacs--config nil)
+ (setq wacs--saved-workspaces (make-hash-table :test 'equal))
  (jump-to-register :pre-ecukes))
 
 (After
