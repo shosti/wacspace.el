@@ -146,7 +146,7 @@ function need not stop with the original window active."
 ;;;###autoload
 (defmacro wacs-set-frame-fn (frame fn)
   "Set the given frame parameter to the given function. Both
-paramaters should be passed unquoted."
+parameters should be passed unquoted."
   `(push (cons ',frame ',fn) wacs--frame-fns))
 
 ;; Interactive functions
@@ -167,7 +167,10 @@ paramaters should be passed unquoted."
 
 ;;;###autoload
 (defun wacspace (&optional arg)
-  "Set up your Emacs workspace based on your wacspace configuration."
+  "Set up your Emacs workspace. First, wacspace will try to
+restore a window configuration saved with prefix ARG. If that
+doesn't work, wacspace will set up your workspace based on your
+configuration."
   (interactive "P")
 
   (cl-defmacro with-property ((prop) &body body)
@@ -215,6 +218,10 @@ paramaters should be passed unquoted."
          "No wacspace configuration available for the current mode.")))))
 
 (defun wacspace-save (&optional arg)
+  "Save the current window configuration with given ARG as a
+prefix key. When wacspace is invoked in the future in any of the
+current buffers with given prefix key, the current workspace will
+be restored."
   (interactive "P")
   (let* ((config-symbol-alist
           (gethash (current-buffer)
@@ -231,6 +238,10 @@ paramaters should be passed unquoted."
     (window-configuration-to-register workspace-symbol)))
 
 (defun wacspace-restore (&optional arg)
+  "Restore a window configuration saved with prefix key ARG.
+Usually, you should call wacspace directly instead of this
+function unless you want to skip the possibility of
+configuration."
   (let ((buffer (current-buffer)))
     (ignore-errors
       (let* ((conf (cdr
