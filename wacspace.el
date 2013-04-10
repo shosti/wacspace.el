@@ -153,14 +153,17 @@ paramaters should be passed unquoted."
 
 (defun wacs--run-winconf (conf-name)
   (delete-other-windows)
-  (let ((main-window (selected-window)))
-    (funcall (cdr (assoc conf-name wacs--winconfs)))
-    (select-window main-window)
-    main-window))
+  (wacs--if-let (winconf (cdr (assoc conf-name wacs--winconfs)))
+    (let ((main-window (selected-window)))
+      (funcall winconf)
+      (select-window main-window)
+      main-window)
+    (error "No winconf with name: %s" conf-name)))
 
 (defun wacs--set-frame (frame)
-  (wacs--when-let (frame-fn (cdr (assq frame wacs--frame-fns)))
-    (funcall frame-fn)))
+  (wacs--if-let (frame-fn (cdr (assq frame wacs--frame-fns)))
+    (funcall frame-fn)
+    (message "No frame fn specified for frame alignment %s" frame)))
 
 ;;;###autoload
 (defun wacspace (&optional arg)
@@ -193,22 +196,23 @@ paramaters should be passed unquoted."
   (unless (wacspace-restore arg)
     (let ((config (wacs--get-config arg))
           (main-buffer (current-buffer)))
-      (unless config
+      (if config
+          (progn
+            (with-property (before)
+              (save-window-excursion
+                (funcall before)))
+            (with-property (frame)
+              (wacs--set-frame frame))
+            (let ((main-window
+                   (with-property (winconf)
+                     (wacs--run-winconf winconf))))
+              (set-up-windows config main-buffer main-window))
+            (with-property (after)
+              (save-window-excursion
+                (funcall after)))
+            (wacspace-save arg))
         (message
-         "No wacspace configuration available for the current mode."))
-      (with-property (before)
-        (save-window-excursion
-          (funcall before)))
-      (with-property (frame)
-        (wacs--set-frame frame))
-      (let ((main-window
-             (with-property (winconf)
-               (wacs--run-winconf winconf))))
-        (set-up-windows config main-buffer main-window))
-      (with-property (after)
-        (save-window-excursion
-          (funcall after)))
-      (wacspace-save arg))))
+         "No wacspace configuration available for the current mode.")))))
 
 (defun wacspace-save (&optional arg)
   (interactive "P")
