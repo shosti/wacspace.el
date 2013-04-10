@@ -73,29 +73,53 @@
                (lambda (_) (not (equal (window-buffer) buffer)))
                (lambda (_) (other-window 1))))
 
+(defun wacs--list->dotted-pair (list)
+  (let ((snd (cadr list)))
+    (if (and (listp snd) (= (length snd) 2))
+        (cons (car list) (wacs--list->dotted-pair snd))
+      (cons (car list) (cadr list)))))
+
 ;; Indentation fixes
 
 (put 'with-property 'lisp-indent-function 1)
 
 ;; Configuration
 
-(defun wacs--get-config (&optional arg)
-  (defun resolve-config (config)
-    (let ((arg-key (if arg
-                       (intern (concat ":" (number-to-string arg)))
-                     :default)))
-      (append (--filter (not (memq (car it) wacs--numeric-confs))
-                        config)
-              (cdr (assq arg-key config)))))
+(defun wacs--resolve-config (config arg)
+  (let ((arg-key (if arg
+                     (intern (concat ":" (number-to-string arg)))
+                   :default)))
+    (append (--filter (not (memq (car it) wacs--numeric-confs))
+                      config)
+            (cdr (assq arg-key config)))))
 
+(defun wacs--get-config (&optional arg)
   (let* ((mode-config-list (cdr (assoc major-mode wacs--config)))
          (config
           (cl-dolist (aux-cond-pair mode-config-list)
             (unless (eq (car aux-cond-pair) :default)
               (when (wacs--eval-aux-cond (car aux-cond-pair))
                 (cl-return (cdr aux-cond-pair)))))))
-    (resolve-config (if config config
-                      (cdr (assq :default mode-config-list))))))
+    (wacs--resolve-config (if config config
+                            (cdr (assq :default mode-config-list)))
+                          arg)))
+
+(defun wacs--process-config (config)
+  (let ((default-conf (-map 'wacs--list->dotted-pair
+                            (cdr (assq :default config)))))
+    (unless default-conf
+      (error
+       "Please include a :default configuration for the wacspace"))
+    (-map
+     (lambda (entry)
+       (cond ((eq (car entry) :default)
+              (cons :default default-conf))
+             ((memq (car entry) wacs--numeric-confs)
+              (append (cons (car entry)
+                            (-map 'wacs--list->dotted-pair (cdr entry)))
+                      default-conf))
+             (t (wacs--list->dotted-pair entry))))
+     config)))
 
 ;;;###autoload
 (cl-defmacro defwacspace ((mode &optional aux-cond) &body configuration)
@@ -103,30 +127,7 @@
 condition. The auxiliary condition can either be a variable (such
 as a minor mode) or an inline lambda. For full documentation of
 configuration options, see the README."
-  (defun list->dotted-pair (list)
-    (let ((snd (cadr list)))
-      (if (and (listp snd) (= (length snd) 2))
-          (cons (car list) (list->dotted-pair snd))
-        (cons (car list) (cadr list)))))
-
-  (defun process-config (config)
-    (let ((default-conf (-map 'list->dotted-pair
-                              (cdr (assq :default config)))))
-      (unless default-conf
-        (error
-         "Please include a :default configuration for the wacspace"))
-      (-map
-       (lambda (entry)
-         (cond ((eq (car entry) :default)
-                (cons :default default-conf))
-               ((memq (car entry) wacs--numeric-confs)
-                (append (cons (car entry)
-                              (-map 'list->dotted-pair (cdr entry)))
-                        default-conf))
-               (t (list->dotted-pair entry))))
-       config)))
-
-  (let* ((config (process-config configuration))
+  (let* ((config (wacs--process-config configuration))
          (aux-cond-key (or aux-cond :default))
          (config-entry `(,aux-cond-key . ,config))
          (mode-list-pair-var (cl-gensym)))
@@ -169,6 +170,29 @@ parameters should be passed unquoted."
     (funcall frame-fn)
     (message "No frame fn specified for frame alignment %s" frame)))
 
+(cl-defmacro wacs--with-property ((prop) &body body)
+  (let ((prop-keyword (intern (concat ":" (symbol-name prop)))))
+    `(let ((,prop (cdr (assoc ,prop-keyword config))))
+       (when ,prop
+         ,@body))))
+
+(defun wacs--set-up-windows (config main-buffer main-window)
+  (-each (-take (length (window-list))
+                '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
+         (lambda (win-key)
+           (wacs--when-let (buffer-conf (cdr (assq win-key config)))
+             (select-window main-window)
+             (other-window (string-to-number
+                            (substring (symbol-name win-key) -1)))
+             (cl-case (car buffer-conf)
+               (:buffer (switch-to-buffer
+                         (if (eq (cdr buffer-conf) :main)
+                             main-buffer
+                           (cdr buffer-conf))))
+               (:cmd (funcall (cdr buffer-conf)))))))
+  (select-window main-window)
+  (wacs--switch-to-window-with-buffer main-buffer))
+
 ;;;###autoload
 (defun wacspace (&optional arg)
   "Set up your Emacs workspace. First, wacspace will try to
@@ -176,47 +200,23 @@ restore a window configuration saved with prefix ARG. If that
 doesn't work, wacspace will set up your workspace based on your
 configuration."
   (interactive "P")
-
-  (cl-defmacro with-property ((prop) &body body)
-    (let ((prop-keyword (intern (concat ":" (symbol-name prop)))))
-      `(let ((,prop (cdr (assoc ,prop-keyword config))))
-         (when ,prop
-           ,@body))))
-
-  (defun set-up-windows (config main-buffer main-window)
-    (-each (-take (length (window-list))
-                  '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
-           (lambda (win-key)
-             (wacs--when-let (buffer-conf (cdr (assq win-key config)))
-               (select-window main-window)
-               (other-window (string-to-number
-                              (substring (symbol-name win-key) -1)))
-               (cl-case (car buffer-conf)
-                 (:buffer (switch-to-buffer
-                           (if (eq (cdr buffer-conf) :main)
-                               main-buffer
-                             (cdr buffer-conf))))
-                 (:cmd (funcall (cdr buffer-conf)))))))
-    (select-window main-window)
-    (wacs--switch-to-window-with-buffer main-buffer))
-
   (unless (wacspace-restore arg)
     (let ((config (wacs--get-config arg))
           (main-buffer (current-buffer)))
       (if config
           (progn
-            (with-property (before)
-              (save-window-excursion
-                (funcall before)))
-            (with-property (frame)
-              (wacs--set-frame frame))
+            (wacs--with-property (before)
+                                 (save-window-excursion
+                                   (funcall before)))
+            (wacs--with-property (frame)
+                                 (wacs--set-frame frame))
             (let ((main-window
-                   (with-property (winconf)
-                     (wacs--run-winconf winconf))))
-              (set-up-windows config main-buffer main-window))
-            (with-property (after)
-              (save-window-excursion
-                (funcall after)))
+                   (wacs--with-property (winconf)
+                                        (wacs--run-winconf winconf))))
+              (wacs--set-up-windows config main-buffer main-window))
+            (wacs--with-property (after)
+                                 (save-window-excursion
+                                   (funcall after)))
             (wacspace-save arg))
         (message
          "No wacspace configuration available for the current mode.")))))
