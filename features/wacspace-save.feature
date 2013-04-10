@@ -118,3 +118,15 @@ Feature: Save/restore workspace
     And I switch to buffer "*ruby*"
     And I press "C-1 C-c w"
     Then the frame should be full aligned
+
+  Scenario: Restoring a window should not affect the cursor position
+    When I press "C-x o"
+    And I switch to buffer "*something-else*"
+    And I press "C-c s"
+    And I insert "Hello how are you today?"
+    And I press "M-b"
+    And I press "C-c w"
+    Then there should be 2 windows
+    And I should be in buffer "*something-else*"
+    And the 1st window should be in buffer "*main*"
+    And the cursor should be after "you "
