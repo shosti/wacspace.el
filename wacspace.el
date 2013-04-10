@@ -4,7 +4,7 @@
 
 ;; Author: Emanuel Evans <emanuel.evans@gmail.com>
 ;; URL: http://github.com/shosti/wacspace.el
-;; Version: 0.0
+;; Version: 0.1
 ;; Created: 26 March 2013
 ;; Keywords: workspace
 ;; Package-Requires: ((dash "1.1.0"))
