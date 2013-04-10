@@ -33,33 +33,34 @@ configurations for a given file type.
 ### Saving and restoring
 
 The first time you use `wacspace` on a buffer, your workspace will be
-set up based on your configuration (see Configuration). Once your
-workspace is set up, wacspace will automatically save your window
-configuration. If you use `wacspace` on any of the buffers that were
-set up, it will jump to the window setup without re-running your
-configuration.
+set up based on your configuration (see below). Once your workspace is
+set up, wacspace will automatically save your window configuration. If
+you use `wacspace` on any of the buffers that were set up this way, it
+will jump to the window setup without re-running your configuration.
 
 You can also save your configuration at any time using
 (unsurprisingly) `wacspace-save`. `wacspace-save` can also use a
 numeric prefix, in which case using `wacspace` with that numeric
-prefix will access that workspace. The behavior is intuitive but a
-little bit subtle—if you want concrete examples of how it works, check
-out [features/wacs-save.feature](features/wacs-save.feature).
+prefix will access that saved workspace. When you kill a buffer in the
+configuration and use `wacspace`, it will again set up the workspace
+according to your configuration. Thus, `wacspace` should "just work"
+most of the time—if you want concrete behavior examples, check out
+[features/wacs-save.feature](https://github.com/shosti/wacspace.el/blob/master/features/wacspace-save.feature).
 
-The frame size is not saved/restored like the rest of the
+The frame alignment is not saved/restored like the rest of the
 configuration. Instead, if you specify a frame alignment for a prefix
 key in your configuration, that frame alignment will always be
-restored when you use wacspace with that prefix key on windows set up
-with that configuration. This behavior is subject to change in future
-versions of wacspace. For instance, with the example configuration
-below, if you set up a workspace with prefix key `1`, any time you run
-`C-1 wacspace` in any of the windows set up by that workspace, the
-frame will be full.
+restored when you use `wacspace` with that prefix key. This behavior
+is subject to change in future versions of wacspace. For instance,
+with the example configuration below, if you set up a workspace with
+prefix key `1`, any time you run `C-1 wacspace` in any of the windows
+set up by that workspace, the frame will be full.
 
 ## Configuration
 
-Configuring wacspace is a little harder, but you usually only need to
-use one macro: `defwacspace`. Here's an example to get you started:
+Configuring wacspace is a little trickier, but you usually only need
+to use one macro: `defwacspace`. Here's an example configuraton to get
+you started:
 
 ```cl
 (defwacspace (ruby-mode rinari-minor-mode)
@@ -84,10 +85,9 @@ The basic form is `(defwacspace (major-mode &optional aux-cond) &body
 config)`. The `aux-cond` can either be a variable (such as
 `rinari-minor-mode`, or any other minor mode variable for that matter)
 or an inline lambda, such as `(lambda () (string-match "spec\\.rb$"
-(buffer-name)))` (note that there is no need for quoting). If you
-don't provide an auxiliary condition, the wacspace will be the default
-for the major mode and will be used when none of the auxiliary
-conditions for other wacspaces are met.
+(buffer-name)))` (note that there is no need for quoting the lambda).
+If you don't provide an auxiliary condition, the wacspace will be the
+default for the major mode.
 
 The configuration currently supports the following options:
 
@@ -102,7 +102,7 @@ Within the configurations, the following options are available:
 - `:winconf` The window configuration to use (see later)
 - `:frame` The frame alignment to use (see later)
 - `:main` The top-left window
-- `:aux[1-5]` Auxiliary window number [1-5] (in the order of
+- `:aux[1-5]` Auxiliary window number 1-5 (in the order of
   `other-window`)
 
 There are 2 options to set up a window:
@@ -161,7 +161,6 @@ Wacspace comes with some nice winconfs built in:
     |          |
     |  :main   |
     |          |
-    |          |
     +----------+
     |          |
     |  :aux1   |
@@ -198,6 +197,6 @@ functions.
 ### TODO/Contributing
 
 Wacspace is in early alpha phase, and I plan to add more features and
-fix behavior. Any comments/suggestions/pull requests are welcome.
-Eventually, I would also like to include a variety of default
-configurations for various modes.
+fix behavior. Any comments/suggestions/pull requests are much
+appreciated. Eventually, I would also like to include a variety of
+default configurations for various modes.
