@@ -40,9 +40,13 @@
 
 ;; Private configuration
 
+;;;###autoload
 (defvar wacs--config nil)
+;;;###autoload
 (defvar wacs--winconfs nil)
+;;;###autoload
 (defvar wacs--frame-fns nil)
+;;;###autoload
 (defvar wacs--saved-workspaces (make-hash-table :test 'equal))
 (defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9))
 
@@ -65,9 +69,9 @@
          (symbol-value aux-cond))))
 
 (defun wacs--switch-to-window-with-buffer (buffer)
-  (--each-while (window-list)
-        (not (equal (window-buffer) buffer))
-      (other-window 1)))
+  (-each-while (window-list)
+               (lambda (_) (not (equal (window-buffer) buffer)))
+               (lambda (_) (other-window 1))))
 
 ;; Indentation fixes
 
