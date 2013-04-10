@@ -1,8 +1,6 @@
 (source "melpa" "http://melpa.milkbox.net/packages/")
 
-(package "wacspace" "0.0.1" "Context-aware workspace management")
-
-(depends-on "dash")
+(package-file "wacspace.el")
 
 (development
  (depends-on "ecukes")
