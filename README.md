@@ -8,8 +8,8 @@ The WACky WorkSPACE manager for emACS.
 Wacspace is available on [Marmalade](http://marmalade-repo.org/) and
 [Melpa](http://melpa.milkbox.net/), so you can install easily with
 `M-x package-install`. You can also just put `wacspace.el` on your
-load path and `(require 'wacspace)`. Wacspace requires Emacs version
-24.3 or greater (or the cl-lib library from ELPA) and
+load path and `(require 'wacspace)`. Wacspace requires cl-lib
+(included in Emacs >= 24.3) and
 [dash.el](https://github.com/magnars/dash.el) (available on Marmalade
 and Melpa).
 
