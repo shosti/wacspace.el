@@ -18,7 +18,7 @@ load path and `(require 'wacspace)`. Wacspace requires Emacs version
 Using wacspace is very easy: just bind `wacspace` and `wacspace-save`
 to convenient key sequences like so:
 
-```elisp
+```cl
 (global-set-key (kbd "C-c w") 'wacspace)
 (global-set-key (kbd "C-c s") 'wacspace-save)
 ```
@@ -61,7 +61,7 @@ frame will be full.
 Configuring wacspace is a little harder, but you usually only need to
 use one macro: `defwacspace`. Here's an example to get you started:
 
-```elisp
+```cl
 (defwacspace (ruby-mode rinari-minor-mode)
   (:before rinari-console)
   (:default
@@ -116,7 +116,7 @@ There are 2 options to set up a window:
 A winconf is basically just a function to set up your windows. You can
 define your own using `defwinconf`:
 
-```elisp
+```cl
 (defwinconf my-cool-winconf
   (split-window-right)
   (split-window-right)
@@ -188,7 +188,7 @@ screen resolutions, I haven't attempted to include frame-setting
 functions with wacspace. Instead, you can use your own functions and
 set them using `wacs-set-frame-fn`:
 
-```elisp
+```cl
 (wacs-set-frame-function full my-fill-screen-fn)
 ```
 
