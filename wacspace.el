@@ -242,7 +242,8 @@ be restored."
 Usually, you should call wacspace directly instead of this
 function unless you want to skip the possibility of
 configuration."
-  (let ((buffer (current-buffer)))
+  (let ((buffer (current-buffer))
+        (pos (point)))
     (ignore-errors
       (let* ((conf (cdr
                     (assoc (or arg :default)
@@ -253,6 +254,7 @@ configuration."
         (when register-sym
           (jump-to-register register-sym)
           (wacs--switch-to-window-with-buffer buffer)
+          (goto-char pos)
           (wacs--set-frame frame)
           t)))))
 
