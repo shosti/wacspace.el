@@ -217,6 +217,7 @@ configuration."
         (message
          "No wacspace configuration available for the current mode.")))))
 
+;;;###autoload
 (defun wacspace-save (&optional arg)
   "Save the current window configuration with given ARG as a
 prefix key. When wacspace is invoked in the future in any of the
@@ -237,6 +238,7 @@ be restored."
                wacs--saved-workspaces))
     (window-configuration-to-register workspace-symbol)))
 
+;;;###autoload
 (defun wacspace-restore (&optional arg)
   "Restore a window configuration saved with prefix key ARG.
 Usually, you should call wacspace directly instead of this
