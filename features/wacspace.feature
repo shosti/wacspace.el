@@ -68,7 +68,7 @@ Feature: Set up Ruby/Rails workspace
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*ruby*"
 
-  Scenario: wacspace with fuzzy buffer matching
+  Scenario: wacspace with regexp buffer matching
     When I load the following:
     """
     (defwacspace (ruby-mode)
@@ -77,7 +77,7 @@ Feature: Set up Ruby/Rails workspace
          (:winconf 2winv)
          (:aux1 (:buffer "*ruby"))))
 
-     (setq wacs-regex-buffer-switching t)
+     (setq wacs-regexp-buffer-switching t)
      """
      And I am in buffer "*main*"
      And I turn on ruby-mode
