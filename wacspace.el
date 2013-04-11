@@ -46,8 +46,10 @@
 
 ;; Private configuration
 
+;;;###autoload
 (defvar wacs--config nil)
 (defvar wacs--winconfs nil)
+;;;###autoload
 (defvar wacs--frame-fns nil)
 (defvar wacs--saved-workspaces (make-hash-table :test 'equal))
 (defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9))
