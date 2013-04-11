@@ -38,6 +38,12 @@
 (require 'cl-lib)
 (require 'dash)
 
+;; Configuration options
+
+(defvar wacs-regexp-buffer-switching t
+  "When set to t, :buffer option will use a regexp match if a
+  buffer does not exist with the exact match.")
+
 ;; Private configuration
 
 (defvar wacs--config nil)
@@ -172,6 +178,23 @@ parameters should be passed unquoted."
        (when ,prop
          ,@body))))
 
+(defun wacs--switch-to-buffer (buffer-string)
+  (wacs--if-let (buffer
+                 (car (--filter (string= buffer-string
+                                         (buffer-name it))
+                                (buffer-list))))
+    (switch-to-buffer buffer)
+    (if wacs-regexp-buffer-switching
+        (wacs--if-let (buffer
+                       (car
+                        (--filter
+                         (string-match-p buffer-string
+                                         (buffer-name it))
+                         (buffer-list))))
+          (switch-to-buffer buffer)
+          (switch-to-buffer buffer-string))
+      (switch-to-buffer buffer-string))))
+
 (defun wacs--set-up-windows (config main-buffer main-window)
   (-each (-take (length (window-list))
                 '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
@@ -181,9 +204,9 @@ parameters should be passed unquoted."
              (other-window (string-to-number
                             (substring (symbol-name win-key) -1)))
              (cl-case (car buffer-conf)
-               (:buffer (switch-to-buffer
-                         (if (eq (cdr buffer-conf) :main)
-                             main-buffer
+               (:buffer (if (eq (cdr buffer-conf) :main)
+                            (switch-to-buffer main-buffer)
+                          (wacs--switch-to-buffer
                            (cdr buffer-conf))))
                (:cmd (funcall (cdr buffer-conf)))))))
   (select-window main-window)

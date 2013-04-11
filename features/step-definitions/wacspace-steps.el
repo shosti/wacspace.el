@@ -25,8 +25,8 @@
       (select-window (window-at 1 1))
       (other-window (- (string-to-number n) 1))
       (assert (equal expected-name (buffer-name)) nil
-              "Window no. %s should be in buffer %s but is in buffer %s"
-              n expected-name buf))))
+              "Window #%s should be in buffer %s but is in buffer %s"
+              n expected-name (buffer-name)))))
 
 (Then "^there should be \\([0-9]+\\) windows$"
   (lambda (wins)
@@ -39,3 +39,7 @@
        (lambda ()
          (let ((kill-buffer-query-functions nil))
            (kill-buffer (current-buffer)))))
+
+(And "^I rename the buffer to \"\\([^\"]+\\)\"$"
+       (lambda (name)
+         (rename-buffer name)))
