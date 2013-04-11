@@ -238,6 +238,7 @@ configuration."
             (wacs--with-property (after)
                                  (save-window-excursion
                                    (funcall after)))
+            (message "wacspace configured")
             (wacspace-save arg))
         (message
          "No wacspace configuration available for the current mode.")))))
@@ -261,7 +262,8 @@ be restored."
       (puthash (window-buffer it)
                new-config-alist
                wacs--saved-workspaces))
-    (window-configuration-to-register workspace-symbol)))
+    (window-configuration-to-register workspace-symbol)
+    (message "wacspace saved")))
 
 ;;;###autoload
 (defun wacspace-restore (&optional arg)
@@ -283,6 +285,7 @@ configuration."
           (wacs--switch-to-window-with-buffer buffer)
           (goto-char pos)
           (wacs--set-frame frame)
+          (message "wacspace restored")
           t)))))
 
 ;; Standard configuration
