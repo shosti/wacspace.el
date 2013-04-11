@@ -108,7 +108,11 @@ Within the configurations, the following options are available:
 There are 2 options to set up a window:
 
 - `:buffer` Switch to buffer name (or `:main`, which signifies the
-  buffer from which `wacspace` was invoked)
+  buffer from which `wacspace` was invoked). If
+  `wacs-regexp-buffer-switching` is set to `t` (which it is by
+  default), wacspace will try to switch to the most recent buffer with
+  a regexp match; if none is found, it will switch to a new buffer
+  with that name.
 - `:cmd` a command to invoke
 
 ### Window Configurations
