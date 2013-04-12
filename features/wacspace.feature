@@ -1,4 +1,4 @@
-Feature: Set up Ruby/Rails workspace
+Feature: Set up workspace
   In order to efficiently develop in Ruby with or without Rails
   As a Rails developer
   I want to use wacspace

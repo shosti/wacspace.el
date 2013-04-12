@@ -45,13 +45,14 @@
  (global-set-key (kbd "C-c s") 'wacspace-save))
 
 (Before
+ (setq base-dir (concat (make-temp-file "wacs" t) "/"))
  (setq wacs--config nil)
  (setq wacs--saved-workspaces (make-hash-table :test 'equal))
  (jump-to-register :pre-ecukes))
 
 (After
- ;; After each scenario is run
- )
+ (when (-contains? (-map 'buffer-name (buffer-list)) "*eshell*")
+   (kill-buffer "*eshell*")))
 
 (Teardown
  ;;

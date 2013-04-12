@@ -43,3 +43,26 @@
 (And "^I rename the buffer to \"\\([^\"]+\\)\"$"
        (lambda (name)
          (rename-buffer name)))
+
+(And "^I visit the file \"\\([^\"]+\\)\"$"
+       (lambda (fname)
+         (find-file (concat base-dir "/" fname))))
+
+(And "^the current directory should be the base directory$"
+       (lambda ()
+         (assert (equal default-directory base-dir) nil
+                 "Current directory should equal %s but instead is %s"
+                 base-dir default-directory)))
+
+(And "^I save the buffer$"
+       (lambda ()
+         (save-buffer)))
+
+(And "^I create the directory \"\\([^\"]+\\)\"$"
+       (lambda (dirname)
+         (make-directory (concat base-dir dirname))))
+
+(Then "^I should be in \\([-a-z]+-mode\\)$"
+       (lambda (mode-string)
+         (assert (equal major-mode (intern mode-string)) nil
+                 "Mode should be %s but is %s" major-mode mode-string)))
