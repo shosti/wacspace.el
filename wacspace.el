@@ -44,6 +44,38 @@
   "When set to t, :buffer option will use a regexp match if a
   buffer does not exist with the exact match.")
 
+(defvar wacs-main-buffer nil
+  "The buffer from which wacspace was called. Should not be set
+  directly; will be automatically bound when wacspace is
+  called.")
+
+(defvar wacs-project-base-file ".git"
+  "Wacspace will assume that project base directories have this
+  filename in them. Can be dynamically bound within helper
+  functions. When set to nil, wacspace will assume that the
+  current directory is the base directory.")
+
+;; Useful helper functions
+
+(defun wacs-project-dir ()
+  "Return the project directory of `wacs-main-buffer'."
+  (let ((fname (file-name-directory
+                (buffer-file-name wacs-main-buffer))))
+    (if wacs-project-base-file
+        (locate-dominating-file fname
+                                wacs-project-base-file)
+      (file-name-directory fname))))
+
+(defun wacs-eshell ()
+  "Open an eshell in the main project directory."
+  (let ((default-directory (wacs-project-dir)))
+    (eshell t)))
+
+(defun wacs-shell ()
+  "Open a new shell in the main project directory."
+  (let ((default-directory (wacs-project-dir)))
+    (shell (concat "*shell* <" default-directory ">"))))
+
 ;; Private configuration
 
 ;;;###autoload
@@ -197,7 +229,7 @@ parameters should be passed unquoted."
           (switch-to-buffer buffer-string))
       (switch-to-buffer buffer-string))))
 
-(defun wacs--set-up-windows (config main-buffer main-window)
+(defun wacs--set-up-windows (config main-window)
   (-each (-take (length (window-list))
                 '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
          (lambda (win-key)
@@ -207,12 +239,12 @@ parameters should be passed unquoted."
                             (substring (symbol-name win-key) -1)))
              (cl-case (car buffer-conf)
                (:buffer (if (eq (cdr buffer-conf) :main)
-                            (switch-to-buffer main-buffer)
+                            (switch-to-buffer wacs-main-buffer)
                           (wacs--switch-to-buffer
                            (cdr buffer-conf))))
                (:cmd (funcall (cdr buffer-conf)))))))
   (select-window main-window)
-  (wacs--switch-to-window-with-buffer main-buffer))
+  (wacs--switch-to-window-with-buffer wacs-main-buffer))
 
 ;;;###autoload
 (defun wacspace (&optional arg)
@@ -223,7 +255,7 @@ configuration."
   (interactive "P")
   (unless (wacspace-restore arg)
     (let ((config (wacs--get-config arg))
-          (main-buffer (current-buffer)))
+          (wacs-main-buffer (current-buffer)))
       (if config
           (progn
             (wacs--with-property (before)
@@ -234,7 +266,7 @@ configuration."
             (let ((main-window
                    (wacs--with-property (winconf)
                                         (wacs--run-winconf winconf))))
-              (wacs--set-up-windows config main-buffer main-window))
+              (wacs--set-up-windows config main-window))
             (wacs--with-property (after)
                                  (save-window-excursion
                                    (funcall after)))
