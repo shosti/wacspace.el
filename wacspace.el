@@ -55,6 +55,23 @@
   functions. When set to nil, wacspace will assume that the
   current directory is the base directory.")
 
+(defun wacs-clear-saved (buffer)
+  "Clear saved workspaces associated with BUFFER. BUFFER can be a
+string or a buffer object."
+  (let ((config (gethash buffer wacs--saved-workspaces)))
+    (--each (-map 'cadr config)
+      (cl-delete-if
+       (lambda (reg)
+         (eq (car reg) it))
+       register-alist))
+    (remhash buffer wacs--saved-workspaces)))
+
+(defun wacs-clear-all-saved ()
+  "Clear all saved workspaces from this session."
+  (interactive)
+  (maphash (lambda (key _) (wacs-clear-saved key))
+           wacs--saved-workspaces))
+
 ;; Useful helper functions
 
 (defun wacs-project-dir ()
@@ -321,6 +338,11 @@ configuration."
           (wacs--set-frame frame)
           (message "wacspace restored")
           t)))))
+
+(defun wacs--kill-buffer-hook ()
+  (wacs-clear-saved (current-buffer)))
+
+(add-hook 'kill-buffer-hook 'wacs--kill-buffer-hook)
 
 ;; Standard configuration
 

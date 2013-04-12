@@ -130,3 +130,17 @@ Feature: Save/restore workspace
     And I should be in buffer "*something-else*"
     And the 1st window should be in buffer "*main*"
     And the cursor should be after "you "
+
+  Scenario: Clearing saved buffers
+    When I press "C-x o"
+    And I switch to buffer "*something-else*"
+    And I press "C-c s"
+    And I start an action chain
+    And I press "M-x"
+    And I type "wacs-clear-all-saved"
+    And I execute the action chain
+    And I press "C-x o"
+    And I press "C-c w"
+    Then there should be 2 windows
+    And I should be in buffer "*main*"
+    And the 2nd window should be in buffer "*ruby*"
