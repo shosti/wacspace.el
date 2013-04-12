@@ -45,14 +45,13 @@ Feature: Use configuration functions with dynamic vars
     When I load the following:
     """
     (defwacspace (emacs-lisp-mode)
+      (:base-file ".project")
       (:default
        (:winconf 2winv)
        (:aux1 (:cmd wacs-shell))))
-
-    (setq wacs-project-base-file ".git")
     """
     And I create the directory "subdir"
-    And I create the directory ".git"
+    And I create the directory ".project"
     And I visit the file "subdir/main.el"
     And I save the buffer
     And I turn on emacs-lisp-mode
