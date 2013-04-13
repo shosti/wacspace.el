@@ -44,6 +44,10 @@
   "When set to t, :buffer option will use a regexp match if a
   buffer does not exist with the exact match.")
 
+(defvar wacs-save-frame t
+  "When set to t, wacspace will save the frame configuration as
+  well as the window configuration.")
+
 (defvar wacs-main-buffer nil
   "The buffer from which wacspace was called. Should not be set
   directly; will be automatically bound when wacspace is
@@ -58,13 +62,11 @@
 (defun wacs-clear-saved (buffer)
   "Clear saved workspaces associated with BUFFER. BUFFER can be a
 string or a buffer object."
-  (let ((config (gethash buffer wacs--saved-workspaces)))
-    (--each (-map 'cadr config)
-      (cl-delete-if
-       (lambda (reg)
-         (eq (car reg) it))
-       register-alist))
-    (remhash buffer wacs--saved-workspaces)))
+  (-each (gethash buffer wacs--saved-workspaces)
+    (lambda (entry)
+      (-each (cddr entry)
+             (lambda (buffer)
+               (remhash buffer wacs--saved-workspaces))))))
 
 (defun wacs-clear-all-saved ()
   "Clear all saved workspaces from this session."
@@ -304,16 +306,17 @@ be restored."
   (let* ((config-symbol-alist
           (gethash (current-buffer)
                    wacs--saved-workspaces))
-         (workspace-symbol (cl-gensym))
-         (frame (cdr (assq :frame (wacs--get-config arg))))
+         (config (if wacs-save-frame
+                     (current-frame-configuration)
+                   (current-window-configuration)))
+         (current-buffers (-map 'window-buffer (window-list)))
          (new-config-alist
-          (push (cons (or arg :default) (cons workspace-symbol frame))
+          (push (cons (or arg :default) (cons config current-buffers))
                 config-symbol-alist)))
     (--each (window-list)
       (puthash (window-buffer it)
                new-config-alist
                wacs--saved-workspaces))
-    (window-configuration-to-register workspace-symbol)
     (message "wacspace saved")))
 
 ;;;###autoload
@@ -325,17 +328,16 @@ configuration."
   (let ((buffer (current-buffer))
         (pos (point)))
     (ignore-errors
-      (let* ((conf (cdr
-                    (assoc (or arg :default)
-                           (gethash buffer
-                                    wacs--saved-workspaces))))
-             (register-sym (car conf))
-             (frame (cdr conf)))
-        (when register-sym
-          (jump-to-register register-sym)
+      (let* ((config (cadr
+                      (assoc (or arg :default)
+                             (gethash buffer
+                                      wacs--saved-workspaces)))))
+        (when config
+          (if wacs-save-frame
+              (set-frame-configuration config)
+            (set-window-configuration config))
           (wacs--switch-to-window-with-buffer buffer)
           (goto-char pos)
-          (wacs--set-frame frame)
           (message "wacspace restored")
           t)))))
 
