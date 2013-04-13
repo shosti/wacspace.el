@@ -271,28 +271,28 @@ doesn't work, wacspace will set up your workspace based on your
 configuration."
   (interactive "P")
   (unless (wacspace-restore arg)
-    (let ((config (wacs--get-config arg))
-          (wacs-main-buffer (current-buffer)))
-      (if config
-          (let ((wacs-project-base-file
-                 (or (cdr (assoc :base-file config))
-                     wacs-project-base-file)))
-            (wacs--with-property (before)
-              (save-window-excursion
-                (funcall before)))
-            (wacs--with-property (frame)
-              (wacs--set-frame frame))
-            (let ((main-window
-                   (wacs--with-property (winconf)
-                     (wacs--run-winconf winconf))))
-              (wacs--set-up-windows config main-window))
-            (wacs--with-property (after)
-              (save-window-excursion
-                (funcall after)))
-            (message "wacspace configured")
-            (wacspace-save arg))
-        (message
-         "No wacspace configuration available for the current mode.")))))
+    (let ((wacs-main-buffer (current-buffer)))
+      (let ((config (wacs--get-config arg)))
+        (if config
+            (let ((wacs-project-base-file
+                   (or (cdr (assoc :base-file config))
+                       wacs-project-base-file)))
+              (wacs--with-property (before)
+                (save-window-excursion
+                  (funcall before)))
+              (wacs--with-property (frame)
+                (wacs--set-frame frame))
+              (let ((main-window
+                     (wacs--with-property (winconf)
+                       (wacs--run-winconf winconf))))
+                (wacs--set-up-windows config main-window))
+              (wacs--with-property (after)
+                (save-window-excursion
+                  (funcall after)))
+              (message "wacspace configured")
+              (wacspace-save arg))
+          (message
+           "No wacspace configuration available for the current mode."))))))
 
 ;;;###autoload
 (defun wacspace-save (&optional arg)
