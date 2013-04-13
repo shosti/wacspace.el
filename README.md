@@ -96,6 +96,8 @@ The configuration currently supports the following options:
 - `:[1-9]` The configuration to use with the corresponding prefix
   keys. Note that these inherit from the default configuration.
 - `:after` A function to run after setting up the workspace
+- `:base-file` A filename to look for to find the project root (useful
+  for the path helper functions). Defaults to `".git"`.
 
 Within the configurations, the following options are available:
 
@@ -114,6 +116,18 @@ There are 2 options to set up a window:
   a regexp match; if none is found, it will switch to a new buffer
   with that name.
 - `:cmd` a command to invoke
+
+### Path Helpers
+
+Wacspace comes with some nice path functions to help set up auxiliary
+windows. When `wacspace` is invoked, the variable `wacs-main-buffer`
+is automatically bound to the buffer from which it was invoked, so you
+can use it in any functions that set up windows or that test for
+auxiliary conditions. The function `wacs-project-dir` finds the base
+project directory by looking for a file or folder equal to
+`wacs-project-base-file`. This variable defaults to `".git"` but can
+be set globally or on a per-wacspace basis with the option
+`:base-file`.
 
 ### Window Configurations
 
