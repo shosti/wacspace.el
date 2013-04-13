@@ -134,6 +134,15 @@ string or a buffer object."
         (cons (car list) (wacs--list->dotted-pair snd))
       (cons (car list) (cadr list)))))
 
+(defun wacs--alist-delete (key alist)
+  (cl-delete-if (lambda (entry)
+                  (equal (car entry) key))
+                alist))
+
+(defun wacs--alist-put (key val alist)
+  (wacs--alist-delete key alist)
+  (push (cons key val) alist))
+
 ;; Indentation fixes
 
 (put 'wacs--with-property 'lisp-indent-function 1)
@@ -311,8 +320,9 @@ be restored."
                    (current-window-configuration)))
          (current-buffers (-map 'window-buffer (window-list)))
          (new-config-alist
-          (push (cons (or arg :default) (cons config current-buffers))
-                config-symbol-alist)))
+          (wacs--alist-put (or arg :default)
+                           (cons config current-buffers)
+                           config-symbol-alist)))
     (--each (window-list)
       (puthash (window-buffer it)
                new-config-alist
