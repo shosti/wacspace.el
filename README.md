@@ -47,14 +47,9 @@ according to your configuration. Thus, `wacspace` should "just work"
 most of the time—if you want concrete behavior examples, check out
 [features/wacs-save.feature](https://github.com/shosti/wacspace.el/blob/master/features/wacspace-save.feature).
 
-The frame alignment is not saved/restored like the rest of the
-configuration. Instead, if you specify a frame alignment for a prefix
-key in your configuration, that frame alignment will always be
-restored when you use `wacspace` with that prefix key. This behavior
-is subject to change in future versions of wacspace. For instance,
-with the example configuration below, if you set up a workspace with
-prefix key `1`, any time you run `C-1 wacspace` in any of the windows
-set up by that workspace, the frame will be full.
+If the variable `wacs-save-frame` is set to `t` (which it is by
+default), `wacspace` will save and restore frame configuration as well
+as window configuration.
 
 ## Configuration
 
