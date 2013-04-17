@@ -90,6 +90,11 @@
     (assert (equal major-mode (intern mode-string)) nil
             "Mode should be %s but is %s" major-mode mode-string)))
 
-(Then "^I should be in a buffer like \"\\([^\"]+\\)\"$"
-  (lambda (expected-name)
-    (string-match expected-name (buffer-name))))
+(Then "^I should be in the project eshell buffer$"
+  (lambda ()
+    (let ((expected-name (concat "*eshell*<" base-dir ">")))
+      (assert (equal major-mode 'eshell-mode)
+              "Buffer should be in eshell-mode, but is in %s" nil major-mode)
+      (assert (equal (buffer-name) expected-name)
+              "Buffer should be in eshell buffer named %s, but instead is named %s"
+              nil expected-name (buffer-name)))))

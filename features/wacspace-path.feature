@@ -18,7 +18,7 @@ Feature: Use configuration functions with dynamic vars
     And I turn on emacs-lisp-mode
     And I press "C-c w"
     And I switch to the next window
-    Then I should be in a buffer like "*eshell*"
+    Then I should be in the project eshell buffer
     And the current directory should be the base directory
 
   Scenario: Eshell in project directory
@@ -38,7 +38,7 @@ Feature: Use configuration functions with dynamic vars
     And I turn on emacs-lisp-mode
     And I press "C-c w"
     And I switch to the next window
-    Then I should be in a buffer like "*eshell*"
+    Then I should be in the project eshell buffer
     And the current directory should be the base directory
 
   Scenario: Shell in project directory
@@ -59,3 +59,25 @@ Feature: Use configuration functions with dynamic vars
     And I switch to the next window
     Then I should be in shell-mode
     And the current directory should be the base directory
+
+  Scenario: Two files in the same project should share the same eshell buffer
+    When I load the following:
+    """
+    (defwacspace (emacs-lisp-mode)
+      (:default
+       (:winconf 2winv)
+       (:aux1 (:cmd wacs-eshell))))
+
+    (setq wacs-project-base-file ".git")
+    """
+    And I create the directory "subdir"
+    And I create the directory ".git"
+    And I visit the file "subdir/main.el"
+    And I save the buffer
+    And I press "C-c w"
+    And I switch to the next window
+    Then I should be in the project eshell buffer
+    When I visit the file "other.el"
+    And I press "C-c w"
+    And I switch to the next window
+    Then I should be in the project eshell buffer
