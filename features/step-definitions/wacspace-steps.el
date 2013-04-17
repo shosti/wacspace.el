@@ -66,3 +66,7 @@
        (lambda (mode-string)
          (assert (equal major-mode (intern mode-string)) nil
                  "Mode should be %s but is %s" major-mode mode-string)))
+
+(Then "^I should be in a buffer like \"\\([^\"]+\\)\"$"
+  (lambda (expected-name)
+    (string-match expected-name (buffer-name))))

@@ -37,6 +37,7 @@
 
 (require 'cl-lib)
 (require 'dash)
+(require 'eshell)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Configuration options ;;
@@ -76,8 +77,9 @@
 
 (defun wacs-eshell ()
   "Open an eshell in the main project directory."
-  (let ((default-directory (wacs-project-dir)))
-    (eshell t)))
+  (let* ((default-directory (wacs-project-dir))
+         (eshell-buffer-name (concat "*eshell*<" default-directory ">")))
+    (eshell)))
 
 (defun wacs-shell ()
   "Open a new shell in the main project directory."

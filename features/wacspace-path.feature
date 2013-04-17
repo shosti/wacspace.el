@@ -18,7 +18,7 @@ Feature: Use configuration functions with dynamic vars
     And I turn on emacs-lisp-mode
     And I press "C-c w"
     And I press "C-x o"
-    Then I should be in buffer "*eshell*"
+    Then I should be in a buffer like "*eshell*"
     And the current directory should be the base directory
 
   Scenario: Eshell in project directory
@@ -38,7 +38,7 @@ Feature: Use configuration functions with dynamic vars
     And I turn on emacs-lisp-mode
     And I press "C-c w"
     And I press "C-x o"
-    Then I should be in buffer "*eshell*"
+    Then I should be in a buffer like "*eshell*"
     And the current directory should be the base directory
 
   Scenario: Shell in project directory
