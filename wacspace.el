@@ -38,7 +38,9 @@
 (require 'cl-lib)
 (require 'dash)
 
-;; Configuration options
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Configuration options ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar wacs-regexp-buffer-switching t
   "When set to t, :buffer option will use a regexp match if a
@@ -59,22 +61,9 @@
   functions. When set to nil, wacspace will assume that the
   current directory is the base directory.")
 
-(defun wacs-clear-saved (buffer)
-  "Clear saved workspaces associated with BUFFER. BUFFER can be a
-string or a buffer object."
-  (-each (gethash buffer wacs--saved-workspaces)
-    (lambda (entry)
-      (-each (cddr entry)
-             (lambda (buffer)
-               (remhash buffer wacs--saved-workspaces))))))
-
-(defun wacs-clear-all-saved ()
-  "Clear all saved workspaces from this session."
-  (interactive)
-  (maphash (lambda (key _) (wacs-clear-saved key))
-           wacs--saved-workspaces))
-
-;; Useful helper functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Useful helper functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun wacs-project-dir ()
   "Return the project directory of `wacs-main-buffer'."
@@ -95,7 +84,9 @@ string or a buffer object."
   (let ((default-directory (wacs-project-dir)))
     (shell (concat "*shell*<" default-directory ">"))))
 
-;; Private configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Private configuration ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;###autoload
 (defvar wacs--config nil)
@@ -105,7 +96,9 @@ string or a buffer object."
 (defvar wacs--saved-workspaces (make-hash-table :test 'equal))
 (defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9))
 
-;; Helper functions and macros
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Helper functions and macros ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (cl-defmacro wacs--when-let ((var value) &body body)
   (declare (indent 1))
@@ -143,11 +136,15 @@ string or a buffer object."
   (wacs--alist-delete key alist)
   (push (cons key val) alist))
 
-;; Indentation fixes
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Indentation fixes ;;
+;;;;;;;;;;;;;;;;;;;;;;;
 
 (put 'wacs--with-property 'lisp-indent-function 1)
 
-;; Configuration
+;;;;;;;;;;;;;;;;;;;
+;; Configuration ;;
+;;;;;;;;;;;;;;;;;;;
 
 (defun wacs--resolve-config (config arg)
   (let ((arg-key (if arg
@@ -218,7 +215,9 @@ function need not stop with the original window active."
 parameters should be passed unquoted."
   `(push (cons ',frame ',fn) wacs--frame-fns))
 
-;; Interactive functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Interactive functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun wacs--run-winconf (conf-name)
   (delete-other-windows)
@@ -351,12 +350,29 @@ configuration."
           (message "wacspace restored")
           t)))))
 
+(defun wacs-clear-saved (buffer)
+  "Clear saved workspaces associated with BUFFER. BUFFER can be a
+string or a buffer object."
+  (-each (gethash buffer wacs--saved-workspaces)
+    (lambda (entry)
+      (-each (cddr entry)
+             (lambda (buffer)
+               (remhash buffer wacs--saved-workspaces))))))
+
+(defun wacs-clear-all-saved ()
+  "Clear all saved workspaces from this session."
+  (interactive)
+  (maphash (lambda (key _) (wacs-clear-saved key))
+           wacs--saved-workspaces))
+
 (defun wacs--kill-buffer-hook ()
   (wacs-clear-saved (current-buffer)))
 
 (add-hook 'kill-buffer-hook 'wacs--kill-buffer-hook)
 
-;; Standard configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Standard configuration ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defwinconf 3winv
   (split-window-right)
