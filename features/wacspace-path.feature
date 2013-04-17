@@ -17,7 +17,7 @@ Feature: Use configuration functions with dynamic vars
     And I save the buffer
     And I turn on emacs-lisp-mode
     And I press "C-c w"
-    And I press "C-x o"
+    And I switch to the next window
     Then I should be in a buffer like "*eshell*"
     And the current directory should be the base directory
 
@@ -37,7 +37,7 @@ Feature: Use configuration functions with dynamic vars
     And I save the buffer
     And I turn on emacs-lisp-mode
     And I press "C-c w"
-    And I press "C-x o"
+    And I switch to the next window
     Then I should be in a buffer like "*eshell*"
     And the current directory should be the base directory
 
@@ -56,6 +56,6 @@ Feature: Use configuration functions with dynamic vars
     And I save the buffer
     And I turn on emacs-lisp-mode
     And I press "C-c w"
-    And I press "C-x o"
+    And I switch to the next window
     Then I should be in shell-mode
     And the current directory should be the base directory

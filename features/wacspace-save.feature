@@ -27,16 +27,16 @@ Feature: Save/restore workspace
     And I press "C-c w"
 
   Scenario: Restore workspace without saving
-    When I press "C-x 0"
+    When I press close the current window
     And I press "C-c w"
     Then there should be 2 windows
     And I should be in buffer "*ruby*"
     And the 1st window should be in buffer "*main*"
 
   Scenario: Save and restore
-    When I press "C-x o"
-    And I press "C-x 2"
-    And I press "C-x o"
+    When I switch to the next window
+    And I split the window vertically
+    And I switch to the next window
     And I run eshell
     And I press "C-c s"
     And I press "C-c w"
@@ -46,11 +46,11 @@ Feature: Save/restore workspace
     And the 2nd window should be in buffer "*ruby*"
 
   Scenario: Killing the buffer means no window restoring
-    When I press "C-x o"
-    And I press "C-x 2"
+    When I switch to the next window
+    And I split the window vertically
     And I press "C-c s"
     And I kill the current buffer
-    And I press "C-x 1"
+    And I split the window horizontally
     And I switch to buffer "*main*"
     And I press "C-c w"
     Then there should be 2 windows
@@ -58,12 +58,12 @@ Feature: Save/restore workspace
     And the 2nd window should be in buffer "*ruby*"
 
   Scenario: Saving and restoring numbered workspaces
-    When I press "C-x o"
-    And I press "C-x 2"
-    And I press "C-x o"
+    When I switch to the next window
+    And I split the window vertically
+    And I switch to the next window
     And I run eshell
     And I press "C-1 C-c s"
-    And I press "C-x 1"
+    And I split the window horizontally
     And I press "C-1 C-c w"
     Then there should be 3 windows
     And I should be in buffer "*eshell*"
@@ -71,12 +71,12 @@ Feature: Save/restore workspace
     And the 2nd window should be in buffer "*ruby*"
 
   Scenario: Saving with a numbered workspace shouldn't affect other workspaces
-    When I press "C-x o"
-    And I press "C-x 2"
-    And I press "C-x o"
+    When I switch to the next window
+    And I split the window vertically
+    And I switch to the next window
     And I run eshell
     And I press "C-1 C-c s"
-    And I press "C-x o"
+    And I switch to the next window
     And I press "C-c w"
     Then there should be 2 windows
     And I should be in buffer "*main*"
@@ -84,21 +84,21 @@ Feature: Save/restore workspace
 
   Scenario: Save and restore without a wacspace configuration
     When I turn on python-mode
-    And I press "C-x o"
+    And I switch to the next window
     And I run eshell
-    And I press "C-x o"
+    And I switch to the next window
     And I press "C-c s"
-    And I press "C-x 1"
+    And I split the window horizontally
     And I press "C-c w"
     Then there should be 2 windows
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*eshell*"
 
   Scenario: Prefixes don't affect each other
-    When I press "C-x o"
-    And I press "C-x 2"
-    And I press "C-x o"
-    And I press "C-x o"
+    When I switch to the next window
+    And I split the window vertically
+    And I switch to the next window
+    And I switch to the next window
     And I press "C-c s"
     And I press "C-2 C-c w"
     And I press "C-c w"
@@ -107,7 +107,7 @@ Feature: Save/restore workspace
     And the 2nd window should be in buffer "*ruby*"
 
   Scenario: Restoring a window should not affect the cursor position
-    When I press "C-x o"
+    When I switch to the next window
     And I switch to buffer "*something-else*"
     And I press "C-c s"
     And I insert "Hello how are you today?"
@@ -119,14 +119,14 @@ Feature: Save/restore workspace
     And the cursor should be after "you "
 
   Scenario: Clearing saved buffers
-    When I press "C-x o"
+    When I switch to the next window
     And I switch to buffer "*something-else*"
     And I press "C-c s"
     And I start an action chain
     And I press "M-x"
     And I type "wacs-clear-all-saved"
     And I execute the action chain
-    And I press "C-x o"
+    And I switch to the next window
     And I press "C-c w"
     Then there should be 2 windows
     And I should be in buffer "*main*"

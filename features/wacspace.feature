@@ -38,11 +38,10 @@ Feature: Set up workspace
        (:main (:buffer "*ruby*"))
        (:aux1 (:buffer :main))))
     """
+    And I am in buffer "*main*" in ruby-mode
 
   Scenario: wacspace in rinari-mode
-    When I am in buffer "*main*"
-    And I turn on ruby-mode
-    And I turn on rinari-minor-mode
+    When I turn on rinari-minor-mode
     And I press "C-c w"
     Then there should be 3 windows
     And I should be in buffer "*main*"
@@ -50,9 +49,7 @@ Feature: Set up workspace
     And the 3rd window should be in buffer "*eshell*"
 
   Scenario: wacspace in rinari-mode half-screen
-    When I am in buffer "*main*"
-    And I turn on ruby-mode
-    And I turn on rinari-minor-mode
+    When I turn on rinari-minor-mode
     And I press "C-3 C-c w"
     Then there should be 2 windows
     And I should be in buffer "*main*"
@@ -60,9 +57,7 @@ Feature: Set up workspace
     And the 1st window should be in buffer "*rails console*"
 
   Scenario: wacspace in ruby-mode without rinari
-    When I am in buffer "*main*"
-    And I turn on ruby-mode
-    And I turn off rinari-minor-mode
+    When I turn off rinari-minor-mode
     And I press "C-c w"
     Then there should be 2 windows
     And I should be in buffer "*main*"
@@ -79,8 +74,7 @@ Feature: Set up workspace
 
      (setq wacs-regexp-buffer-switching t)
      """
-     And I am in buffer "*main*"
-     And I turn on ruby-mode
+     And I am in buffer "*main*" in ruby-mode
      And I press "C-c w"
      Then there should be 2 windows
      And I should be in buffer "*main*"
