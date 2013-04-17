@@ -93,7 +93,7 @@ string or a buffer object."
 (defun wacs-shell ()
   "Open a new shell in the main project directory."
   (let ((default-directory (wacs-project-dir)))
-    (shell (concat "*shell* <" default-directory ">"))))
+    (shell (concat "*shell*<" default-directory ">"))))
 
 ;; Private configuration
 
