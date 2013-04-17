@@ -46,6 +46,7 @@ configuration and use `wacspace`, it will again set up the workspace
 according to your configuration. Thus, `wacspace` should "just work"
 most of the time—if you want concrete behavior examples, check out
 [features/wacs-save.feature](https://github.com/shosti/wacspace.el/blob/master/features/wacspace-save.feature).
+If you want to clear all saved wacspaces, use `wacs-clear-all-saved`.
 
 If the variable `wacs-save-frame` is set to `t` (which it is by
 default), `wacspace` will save and restore frame configuration as well
