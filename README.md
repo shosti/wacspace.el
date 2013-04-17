@@ -125,6 +125,12 @@ project directory by looking for a file or folder equal to
 be set globally or on a per-wacspace basis with the option
 `:base-file`.
 
+Wacspace also provides functions `wacs-eshell` and `wacs-shell`,
+designed to be used within wacspace configurations, that open an
+eshell or shell (respectively) in the project directory. If you have
+multiple files in the same directory, they will share the same eshell
+or shell buffer.
+
 ### Window Configurations
 
 A winconf is basically just a function to set up your windows. You can

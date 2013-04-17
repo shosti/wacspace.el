@@ -90,6 +90,8 @@
 ;; Private configuration ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;Because they're used within autoloaded macros, wacs--config and
+;;wacs--frame-fns need to be autoloaded
 ;;;###autoload
 (defvar wacs--config nil)
 (defvar wacs--winconfs nil)
