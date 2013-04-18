@@ -70,10 +70,11 @@
   "Return the project directory of `wacs-main-buffer'."
   (let ((fname (file-name-directory
                 (buffer-file-name wacs-main-buffer))))
-    (if wacs-project-base-file
-        (locate-dominating-file fname
-                                wacs-project-base-file)
-      (file-name-directory fname))))
+    (expand-file-name
+     (if wacs-project-base-file
+         (locate-dominating-file fname
+                                 wacs-project-base-file)
+       (file-name-directory fname)))))
 
 (defun wacs-eshell ()
   "Open an eshell in the main project directory."
