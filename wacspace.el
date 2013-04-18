@@ -62,6 +62,10 @@
   functions. When set to nil, wacspace will assume that the
   current directory is the base directory.")
 
+(defvar wacs-end-of-buffer-modes '(eshell-mode shell-mode comint-mode)
+  "Major modes where wacspace will scroll to the end of the
+  buffer after restoring or setting up.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Useful helper functions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -350,6 +354,10 @@ configuration."
           (if wacs-save-frame
               (set-frame-configuration config)
             (set-window-configuration config))
+          (--each (window-list)
+            (select-window it)
+            (when (memq major-mode wacs-end-of-buffer-modes)
+              (end-of-buffer)))
           (wacs--switch-to-window-with-buffer buffer)
           (goto-char pos)
           (message "wacspace restored")
