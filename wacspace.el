@@ -354,14 +354,17 @@ configuration."
           (message "wacspace restored")
           t)))))
 
-(defun wacs-clear-saved (buffer)
+(defun wacs-clear-saved (&optional buffer)
   "Clear saved workspaces associated with BUFFER. BUFFER can be a
-string or a buffer object."
-  (-each (gethash buffer wacs--saved-workspaces)
-    (lambda (entry)
-      (-each (cddr entry)
-             (lambda (buffer)
-               (remhash buffer wacs--saved-workspaces))))))
+string or a buffer object. If called interactively, will clear
+saved workspaces associated with the current buffer."
+  (interactive)
+  (let ((buffer (or buffer (current-buffer))))
+    (-each (gethash buffer wacs--saved-workspaces)
+           (lambda (entry)
+             (-each (cddr entry)
+                    (lambda (buffer)
+                      (remhash buffer wacs--saved-workspaces)))))))
 
 (defun wacs-clear-all-saved ()
   "Clear all saved workspaces from this session."
