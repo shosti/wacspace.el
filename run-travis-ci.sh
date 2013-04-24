@@ -10,5 +10,4 @@ echo "ECUKES_EMACS = $ECUKES_EMACS"
 "$ECUKES_EMACS" --version
 echo
 
-ECUKES=$(find elpa/ecukes-*/ecukes | tail -1)
-carton exec "$ECUKES" "$@"
+sh run-tests.sh
