@@ -3,6 +3,9 @@ Feature: Use configuration functions with dynamic vars
   As an Emacs user
   I want to use wacspace's built-in dynamic vars and functions
 
+  Background: In project directory
+    When I am in the project "wacsproject"
+
   Scenario: Eshell in same directory
     When I load the following:
     """
@@ -18,7 +21,7 @@ Feature: Use configuration functions with dynamic vars
     And I turn on emacs-lisp-mode
     And I press "C-c w"
     And I switch to the next window
-    Then I should be in the project eshell buffer
+    Then I should be in buffer "*eshell*<wacsproject>"
     And the current directory should be the base directory
 
   Scenario: Eshell in project directory
@@ -38,12 +41,12 @@ Feature: Use configuration functions with dynamic vars
     And I turn on emacs-lisp-mode
     And I press "C-c w"
     And I switch to the next window
-    Then I should be in the project eshell buffer
+    Then I should be in buffer "*eshell*<wacsproject>"
     And the current directory should be the base directory
     When I visit the file "other.el"
     And I press "C-c w"
     And I switch to the next window
-    Then I should be in the project eshell buffer
+    Then I should be in buffer "*eshell*<wacsproject>"
 
 
   Scenario: Shell in project directory
@@ -62,5 +65,5 @@ Feature: Use configuration functions with dynamic vars
     And I turn on emacs-lisp-mode
     And I press "C-c w"
     And I switch to the next window
-    Then I should be in shell-mode
+    Then I should be in buffer "*shell*<wacsproject>"
     And the current directory should be the base directory

@@ -42,17 +42,19 @@
 
  (get-buffer-create "*main*")
  (global-set-key (kbd "C-c w") 'wacspace)
- (global-set-key (kbd "C-c s") 'wacspace-save))
+ (global-set-key (kbd "C-c s") 'wacspace-save)
+ (defun yes-or-no-p (prompt) t))
 
 (Before
- (setq base-dir (concat (make-temp-file "wacs" t) "/"))
+ (setq base-dir (concat (make-temp-file "wacs" t)))
  (setq wacs--config nil)
  (setq wacs--saved-workspaces (make-hash-table :test 'equal))
  (jump-to-register :pre-ecukes))
 
 (After
- (when (-contains? (-map 'buffer-name (buffer-list)) "*eshell*")
-   (kill-buffer "*eshell*")))
+ (--each (buffer-list)
+   (when (string-match "\\*e?shell\\*" (buffer-name it))
+     (kill-buffer it))))
 
 (Teardown
  ;;

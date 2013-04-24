@@ -81,16 +81,24 @@
                                  wacs-project-base-file)
        (file-name-directory fname)))))
 
+(defun wacs-project-name ()
+  (-> (wacs-project-dir)
+    (split-string "/" t)
+    (last)
+    (car)))
+
 (defun wacs-eshell ()
   "Open an eshell in the main project directory."
-  (let* ((default-directory (wacs-project-dir))
-         (eshell-buffer-name (concat "*eshell*<" default-directory ">")))
+  (let ((default-directory (wacs-project-dir))
+        (eshell-buffer-name (concat "*eshell*<"
+                                    (wacs-project-name)
+                                    ">")))
     (eshell)))
 
 (defun wacs-shell ()
   "Open a new shell in the main project directory."
   (let ((default-directory (wacs-project-dir)))
-    (shell (concat "*shell*<" default-directory ">"))))
+    (shell (concat "*shell*<" (wacs-project-name) ">"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Private configuration ;;

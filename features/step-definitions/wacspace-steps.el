@@ -55,9 +55,14 @@
   (lambda (name)
     (rename-buffer name)))
 
+(When "^I am in the project \"\\([^\"]+\\)\"$"
+  (lambda (project-name)
+    (setq project-dir (concat base-dir "/" project-name "/"))
+    (make-directory project-dir)))
+
 (And "^I visit the file \"\\([^\"]+\\)\"$"
   (lambda (fname)
-    (find-file (concat base-dir "/" fname))))
+    (find-file (concat project-dir fname))))
 
 (And "^I switch to the next window$"
   (lambda ()
@@ -73,9 +78,9 @@
 
 (And "^the current directory should be the base directory$"
   (lambda ()
-    (assert (equal default-directory base-dir) nil
+    (assert (string-equal default-directory project-dir) nil
             "Current directory should equal %s but instead is %s"
-            base-dir default-directory)))
+            project-dir default-directory)))
 
 (And "^I save the buffer$"
   (lambda ()
@@ -83,18 +88,10 @@
 
 (And "^I create the directory \"\\([^\"]+\\)\"$"
   (lambda (dirname)
-    (make-directory (concat base-dir dirname))))
+    (print (concat project-dir dirname))
+    (make-directory (concat project-dir dirname))))
 
 (Then "^I should be in \\([-a-z]+-mode\\)$"
   (lambda (mode-string)
     (assert (equal major-mode (intern mode-string)) nil
             "Mode should be %s but is %s" major-mode mode-string)))
-
-(Then "^I should be in the project eshell buffer$"
-  (lambda ()
-    (let ((expected-name (concat "*eshell*<" base-dir ">")))
-      (assert (equal major-mode 'eshell-mode)
-              "Buffer should be in eshell-mode, but is in %s" nil major-mode)
-      (assert (equal (buffer-name) expected-name)
-              "Buffer should be in eshell buffer named %s, but instead is named %s"
-              nil expected-name (buffer-name)))))
