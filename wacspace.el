@@ -7,7 +7,7 @@
 ;; Version: 0.3
 ;; Created: 26 March 2013
 ;; Keywords: workspace
-;; Package-Requires: ((dash "1.1.0") (cl-lib "0.2"))
+;; Package-Requires: ((dash "1.2.0") (cl-lib "0.2"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -47,9 +47,10 @@
   "When set to t, :buffer option will use a regexp match if a
   buffer does not exist with the exact match.")
 
-(defvar wacs-save-frame t
+(defvar wacs-save-frame (display-graphic-p)
   "When set to t, wacspace will save the frame configuration as
-  well as the window configuration.")
+  well as the window configuration. Set to t by default in
+  graphic display and nil if emacs is run in a terminal.")
 
 (defvar wacs-main-buffer nil
   "The buffer from which wacspace was called. Should not be set
@@ -108,16 +109,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions and macros ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(cl-defmacro wacs--when-let ((var value) &body body)
-  (declare (indent 1))
-  `(let ((,var ,value))
-     (when ,var ,@body)))
-
-(cl-defmacro wacs--if-let ((var value) &body body)
-  (declare (indent 1))
-  `(let ((,var ,value))
-     (if ,var ,@body)))
 
 (defun wacs--eval-aux-cond (aux-cond)
   (cond ((listp aux-cond)
@@ -230,7 +221,7 @@ parameters should be passed unquoted."
 
 (defun wacs--run-winconf (conf-name)
   (delete-other-windows)
-  (wacs--if-let (winconf (cdr (assoc conf-name wacs--winconfs)))
+  (-if-let (winconf (cdr (assoc conf-name wacs--winconfs)))
     (let ((main-window (selected-window)))
       (funcall winconf)
       (select-window main-window)
@@ -238,7 +229,7 @@ parameters should be passed unquoted."
     (error "No winconf with name: %s" conf-name)))
 
 (defun wacs--set-frame (frame)
-  (wacs--if-let (frame-fn (cdr (assq frame wacs--frame-fns)))
+  (-if-let (frame-fn (cdr (assq frame wacs--frame-fns)))
     (funcall frame-fn)
     (message "No frame fn specified for frame alignment %s" frame)))
 
@@ -249,18 +240,18 @@ parameters should be passed unquoted."
          ,@body))))
 
 (defun wacs--switch-to-buffer (buffer-string)
-  (wacs--if-let (buffer
-                 (car (--filter (string= buffer-string
-                                         (buffer-name it))
-                                (buffer-list))))
+  (-if-let (buffer
+            (car (--filter (string= buffer-string
+                                    (buffer-name it))
+                           (buffer-list))))
     (switch-to-buffer buffer)
     (if wacs-regexp-buffer-switching
-        (wacs--if-let (buffer
-                       (car
-                        (--filter
-                         (string-match-p buffer-string
-                                         (buffer-name it))
-                         (buffer-list))))
+        (-if-let (buffer
+                  (car
+                   (--filter
+                    (string-match-p buffer-string
+                                    (buffer-name it))
+                    (buffer-list))))
           (switch-to-buffer buffer)
           (switch-to-buffer buffer-string))
       (switch-to-buffer buffer-string))))
@@ -269,7 +260,7 @@ parameters should be passed unquoted."
   (-each (-take (length (window-list))
                 '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
          (lambda (win-key)
-           (wacs--when-let (buffer-conf (cdr (assq win-key config)))
+           (-when-let (buffer-conf (cdr (assq win-key config)))
              (select-window main-window)
              (other-window (string-to-number
                             (substring (symbol-name win-key) -1)))
