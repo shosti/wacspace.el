@@ -119,10 +119,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun wacs--eval-aux-cond (aux-cond)
-  (cond ((listp aux-cond)
-         (funcall aux-cond))
-        ((boundp aux-cond)
-         (symbol-value aux-cond))))
+  "Evaluate AUX-COND.
+If passed a symbol, evaluate the symbol as a variable. If passed
+an inline lambda, funcall the lambda. If passed a (:var VAR)
+pair, evaluate VAR as a variable. If passed a (:fn FN) pair,
+funcall FN."
+  (if (consp aux-cond)
+      (let ((cond-val (cadr aux-cond)))
+        (cl-case (car aux-cond)
+          (:fn (funcall cond-val))
+          (:var (when (boundp cond-val)
+                  (symbol-value cond-val)))
+          (t (funcall aux-cond))))
+    (when (boundp aux-cond)
+      (symbol-value aux-cond))))
 
 (defun wacs--switch-to-window-with-buffer (buffer)
   (-each-while (window-list)

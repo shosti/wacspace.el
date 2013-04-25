@@ -79,3 +79,40 @@ Feature: Set up workspace
      Then there should be 2 windows
      And I should be in buffer "*main*"
      And the 2nd window should be in buffer "*ruby*"
+
+   Scenario: :var syntax for auxiliary condition
+     When I load the following:
+     """
+     (setq foo t)
+
+     (defwacspace (ruby-mode (:var foo))
+       (:default
+        (:winconf 2winv)
+        (:aux1 (:buffer "*baz*"))))
+     """
+     And I am in buffer "*main*" in ruby-mode
+     And I press "C-c w"
+     Then there should be 2 windows
+     And I should be in buffer "*main*"
+     And the 2nd window should be in buffer "*baz*"
+
+   Scenario: :fn syntax for auxiliary condition
+     When I load the following:
+     """
+     (defun in-foo-buffer ()
+       (equal (buffer-name) "*foo*"))
+
+     (defwacspace (ruby-mode (:fn in-foo-buffer))
+       (:default
+        (:winconf 2winv)
+        (:aux1 (:buffer "*bar*"))))
+     """
+     And I am in buffer "*foo*" in ruby-mode
+     And I press "C-c w"
+     Then there should be 2 windows
+     And I should be in buffer "*foo*"
+     And the 2nd window should be in buffer "*bar*"
+     When I switch to buffer "*main*"
+     And I press "C-c w"
+     Then there should be 2 windows
+     And the 2nd window should be in buffer "*ruby*"
