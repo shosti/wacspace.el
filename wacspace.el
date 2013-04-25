@@ -44,28 +44,32 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar wacs-regexp-buffer-switching t
-  "When set to t, :buffer option will use a regexp match if a
-  buffer does not exist with the exact match.")
+  "Use regexp matching for buffer switching in `wacspace'.
+When set to t, :buffer option will use a regexp match if a
+buffer does not exist with the exact match.")
 
 (defvar wacs-save-frame (display-graphic-p)
-  "When set to t, wacspace will save the frame configuration as
-  well as the window configuration. Set to t by default in
-  graphic display and nil if emacs is run in a terminal.")
+  "Save frame with `wacspace'.
+When set to t, wacspace will save the frame configuration as
+well as the window configuration. Set to t by default in graphic
+display and nil if Emacs is run in a terminal.")
 
 (defvar wacs-main-buffer nil
-  "The buffer from which wacspace was called. Should not be set
-  directly; will be automatically bound when wacspace is
-  called.")
+  "The buffer from which wacspace was called.
+Should not be set directly; will be automatically bound when
+wacspace is called.")
 
 (defvar wacs-project-base-file ".git"
-  "Wacspace will assume that project base directories have this
-  filename in them. Can be dynamically bound within helper
-  functions. When set to nil, wacspace will assume that the
-  current directory is the base directory.")
+  "Base file name in projects.
+Wacspace will assume that project base directories have this
+filename in them. This variable be dynamically bound within
+helper functions. When set to nil, wacspace will assume that the
+current directory is the base directory.")
 
 (defvar wacs-end-of-buffer-modes '(eshell-mode shell-mode comint-mode)
-  "Major modes where wacspace will scroll to the end of the
-  buffer after restoring or setting up.")
+  "Modes in which to scroll to the end of buffers.
+Major modes where wacspace will scroll to the end of the
+buffer after restoring or setting up.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Useful helper functions ;;
@@ -82,6 +86,7 @@
        (file-name-directory fname)))))
 
 (defun wacs-project-name ()
+  "Return the name of the current project."
   (-> (wacs-project-dir)
     (split-string "/" t)
     (last)
@@ -106,13 +111,27 @@
 
 ;;Because they're used within autoloaded macros, wacs--config and
 ;;wacs--frame-fns need to be autoloaded
+
 ;;;###autoload
-(defvar wacs--config nil)
-(defvar wacs--winconfs nil)
+(defvar wacs--config nil
+  "The wacspace configuration alist.
+Should not be altered manually—use `defwacspace' instead.")
+
+(defvar wacs--winconfs nil
+  "The wacspace winconf alist.
+Should not be altered manually—use `defwinconf' instead.")
+
 ;;;###autoload
-(defvar wacs--frame-fns nil)
-(defvar wacs--saved-workspaces (make-hash-table :test 'equal))
-(defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9))
+(defvar wacs--frame-fns nil
+  "The wacspace frame function alist.
+Should not be altered manually—use `wacs-set-frame-fn' instead.")
+
+(defvar wacs--saved-workspaces (make-hash-table :test 'equal)
+  "The hash of saved workspaces.
+Should not be altered manually—use `wacspace-save' insetad.")
+
+(defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9)
+  "The numeric prefix configurations available to `wacspace'.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions and macros ;;
@@ -135,40 +154,49 @@ funcall FN."
       (symbol-value aux-cond))))
 
 (defun wacs--switch-to-window-with-buffer (buffer)
+  "Switch to the window with BUFFER."
   (-each-while (window-list)
                (lambda (_) (not (equal (window-buffer) buffer)))
                (lambda (_) (other-window 1))))
 
 (defun wacs--list->dotted-pair (list)
+  "Change the current LIST pair and sub-list pair into dotted pairs."
   (let ((snd (cadr list)))
     (if (and (listp snd) (= (length snd) 2))
         (cons (car list) (wacs--list->dotted-pair snd))
       (cons (car list) (cadr list)))))
 
 (defun wacs--alist-delete (key alist)
+  "Delete KEY from alist ALIST."
   (cl-delete-if (lambda (entry)
                   (equal (car entry) key))
                 alist))
 
 (defun wacs--alist-put (key val alist)
+  "Push (KEY . VAL) into alist ALIST.
+If KEY already exists as a key in ALIST, delete the entry."
   (wacs--alist-delete key alist)
   (push (cons key val) alist))
 
 (defun wacs--u-prefix? (arg)
-  "Tests whether prefix is universal prefix argument."
+  "Test whether ARG is universal prefix argument."
   (equal arg '(4)))
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;; Indentation fixes ;;
-;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Indentation and Highlighting ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (put 'wacs--with-property 'lisp-indent-function 1)
+(font-lock-add-keywords
+ 'emacs-lisp-mode
+ '(("\\<def\\(wacspace\\|winconf\\)\\>" . 'font-lock-keyword-face)))
 
 ;;;;;;;;;;;;;;;;;;;
 ;; Configuration ;;
 ;;;;;;;;;;;;;;;;;;;
 
 (defun wacs--resolve-config (config arg)
+  "Resolve CONFIG with prefix ARG."
   (let ((arg-key (if arg
                      (intern (concat ":" (number-to-string arg)))
                    :default)))
@@ -177,6 +205,7 @@ funcall FN."
             (cdr (assq arg-key config)))))
 
 (defun wacs--get-config (&optional arg)
+  "Get the configuration with prefix ARG associated with the current buffer."
   (let* ((mode-config-list (cdr (assoc major-mode wacs--config)))
          (config
           (cl-dolist (aux-cond-pair mode-config-list)
@@ -188,6 +217,7 @@ funcall FN."
                           arg)))
 
 (defun wacs--process-config (config)
+  "Process CONFIG for inclusion in `wacs--config'."
   (let ((default-conf (-map 'wacs--list->dotted-pair
                             (cdr (assq :default config)))))
     (unless default-conf
@@ -206,10 +236,10 @@ funcall FN."
 
 ;;;###autoload
 (cl-defmacro defwacspace ((mode &optional aux-cond) &body configuration)
-  "Define a wacspace for a major mode and an optional auxiliary
-condition. The auxiliary condition can either be a variable (such
-as a minor mode) or an inline lambda. For full documentation of
-configuration options, see the README."
+  "Define a wacspace for a major mode and an optional auxiliary condition.
+The auxiliary condition can be a variable (such as a minor mode),
+an inline lambda, a (:fn FN) pair, or a (:var VAR) pair. For full
+documentation of configuration options, see the README."
   (let* ((config (wacs--process-config configuration))
          (aux-cond-key (or aux-cond :default))
          (config-entry `(,aux-cond-key . ,config))
@@ -224,17 +254,18 @@ configuration options, see the README."
 
 ;;;###autoload
 (cl-defmacro defwinconf (conf-name &body body)
-  "Define a wacspace window configuration. This is defined as a
-function (e.g. a sequence of window splitting commands). The
-function need not stop with the original window active."
+  "Define a wacspace window configuration.
+This is defined as a function (e.g. a sequence of window
+splitting commands). The function need not stop with the original
+window active."
   `(push (cons ',conf-name
                '(lambda () ,@body))
          wacs--winconfs))
 
 ;;;###autoload
 (defmacro wacs-set-frame-fn (frame fn)
-  "Set the given frame parameter to the given function. Both
-parameters should be passed unquoted."
+  "Set the given FRAME parameter to FN.
+FRAME and FN should be passed unquoted."
   `(push (cons ',frame ',fn) wacs--frame-fns))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -242,6 +273,7 @@ parameters should be passed unquoted."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun wacs--run-winconf (conf-name)
+  "Run winconf with name CONF-NAME."
   (delete-other-windows)
   (-if-let (winconf (cdr (assoc conf-name wacs--winconfs)))
     (let ((main-window (selected-window)))
@@ -251,17 +283,22 @@ parameters should be passed unquoted."
     (error "No winconf with name: %s" conf-name)))
 
 (defun wacs--set-frame (frame)
+  "Set the frame using the function set for FRAME."
   (-if-let (frame-fn (cdr (assq frame wacs--frame-fns)))
     (funcall frame-fn)
     (message "No frame fn specified for frame alignment %s" frame)))
 
 (cl-defmacro wacs--with-property ((prop) &body body)
+  "Helper macro for using properties within configurations."
   (let ((prop-keyword (intern (concat ":" (symbol-name prop)))))
     `(let ((,prop (cdr (assoc ,prop-keyword config))))
        (when ,prop
          ,@body))))
 
 (defun wacs--switch-to-buffer (buffer-string)
+  "Switch to buffer with name BUFFER-STRING.
+If `wacs-regexp-buffer-switching' is set to t, BUFFER-STRING is
+interpreted as an unescaped regexp."
   (-if-let (buffer
             (car (--filter (string= buffer-string
                                     (buffer-name it))
@@ -271,7 +308,7 @@ parameters should be passed unquoted."
         (-if-let (buffer
                   (car
                    (--filter
-                    (string-match-p buffer-string
+                    (string-match-p (regexp-quote buffer-string)
                                     (buffer-name it))
                     (buffer-list))))
           (switch-to-buffer buffer)
@@ -279,6 +316,8 @@ parameters should be passed unquoted."
       (switch-to-buffer buffer-string))))
 
 (defun wacs--set-up-windows (config main-window)
+  "Set up the windows according to the CONFIG.
+MAIN-WINDOW is the window from which `wacspace' was called."
   (-each (-take (length (window-list))
                 '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
          (lambda (win-key)
@@ -295,7 +334,8 @@ parameters should be passed unquoted."
   (select-window main-window)
   (wacs--switch-to-window-with-buffer wacs-main-buffer))
 
-(defun wacs--set-up-workspace (config)
+(defun wacs--set-up-workspace (arg config)
+  "Given CONFIG, set up the workspace."
   (wacs--with-property (before)
     (save-window-excursion
       (funcall before)))
@@ -313,11 +353,12 @@ parameters should be passed unquoted."
 
 ;;;###autoload
 (defun wacspace (&optional arg)
-  "Set up your Emacs workspace. If there is a saved configuration
-with numeric prefix ARG, restore that. Otherwise, set up your
-workspace based on your wacspace configuration. If called with
-universal prefix arg (C-u), force reconfiguration even if there
-is a saved workspace."
+  "Set up your Emacs workspace.
+If there is a saved configuration with numeric prefix ARG,
+restore that. Otherwise, set up your workspace based on your
+wacspace configuration. If called with universal prefix
+arg (C-u), force reconfiguration even if there is a saved
+workspace."
   (interactive "P")
   (when (wacs--u-prefix? arg)
     (wacs-clear-saved (current-buffer))
@@ -329,16 +370,16 @@ is a saved workspace."
                 (or (cdr (assoc :base-file config))
                     wacs-project-base-file
                     (file-name-nondirectory (buffer-file-name)))))
-      (wacs--set-up-workspace config)
+      (wacs--set-up-workspace arg config)
       (message
        "No wacspace configuration available for the current mode."))))
 
 ;;;###autoload
 (defun wacspace-save (&optional arg)
-  "Save the current window configuration with given ARG as a
-prefix key. When wacspace is invoked in the future in any of the
-current buffers with given prefix key, the current workspace will
-be restored."
+  "Save the current window configuration with prefix ARG.
+When wacspace is invoked in the future in any of the current
+buffers with given prefix key, the current workspace will be
+restored."
   (interactive "P")
   (let* ((config-symbol-alist
           (gethash (current-buffer)
@@ -377,16 +418,17 @@ configuration."
           (--each (window-list)
             (select-window it)
             (when (memq major-mode wacs-end-of-buffer-modes)
-              (end-of-buffer)))
+              (goto-char (point-max))))
           (wacs--switch-to-window-with-buffer buffer)
           (goto-char pos)
           (message "wacspace restored")
           t)))))
 
 (defun wacs-clear-saved (&optional buffer)
-  "Clear saved workspaces associated with BUFFER. BUFFER can be a
-string or a buffer object. If called interactively, will clear
-saved workspaces associated with the current buffer."
+  "Clear saved workspaces associated with BUFFER.
+BUFFER can be a string or a buffer object. If called
+interactively, will clear saved workspaces associated with the
+current buffer."
   (interactive)
   (let ((buffer (or buffer (current-buffer))))
     (-each (gethash buffer wacs--saved-workspaces)
@@ -402,6 +444,7 @@ saved workspaces associated with the current buffer."
            wacs--saved-workspaces))
 
 (defun wacs--kill-buffer-hook ()
+  "Hook to clear saved associated workspaces when a buffer is killed."
   (wacs-clear-saved (current-buffer)))
 
 (add-hook 'kill-buffer-hook 'wacs--kill-buffer-hook)
