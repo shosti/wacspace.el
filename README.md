@@ -54,12 +54,12 @@ as window configuration.
 
 ## Configuration
 
-Configuring wacspace is a little trickier, but you usually only need
-to use one macro: `defwacspace`. Here's an example configuraton to get
-you started:
+Configuring wacspace is not much harder—you usually only need to use
+one macro, `defwacspace`. Here's an example configuraton to get you
+started:
 
 ```cl
-(defwacspace (ruby-mode rinari-minor-mode)
+(defwacspace (ruby-mode (:var rinari-minor-mode))
   (:before rinari-console)
   (:default
    (:winconf 3winv)
@@ -78,12 +78,13 @@ you started:
 ```
 
 The basic form is `(defwacspace (major-mode &optional aux-cond) &body
-config)`. The `aux-cond` can either be a variable (such as
-`rinari-minor-mode`, or any other minor mode variable for that matter)
-or an inline lambda, such as `(lambda () (string-match "spec\\.rb$"
-(buffer-name)))` (note that there is no need for quoting the lambda).
-If you don't provide an auxiliary condition, the wacspace will be the
-default for the major mode.
+config)`. The `aux-cond` can be either be a variable of the form
+`(:var VAR)` (such as `(:var rinari-minor-mode)`, or any other minor
+mode variable for that matter) or a function of the form `(:fn FN)`
+(such as `(:fn (lambda () (string-match "spec\\.rb$" (buffer-name))))`.
+You can also use an inline lambda instead of a `(:fn FN)` pair, or a
+variable name instead of a `(:var VAR)` pair (in all cases, there is
+no need for quoting).
 
 The configuration currently supports the following options:
 
