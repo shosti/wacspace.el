@@ -144,6 +144,10 @@
   (wacs--alist-delete key alist)
   (push (cons key val) alist))
 
+(defun wacs--u-prefix? (arg)
+  "Tests whether prefix is universal prefix argument."
+  (equal arg '(4)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; Indentation fixes ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -281,36 +285,43 @@ parameters should be passed unquoted."
   (select-window main-window)
   (wacs--switch-to-window-with-buffer wacs-main-buffer))
 
+(defun wacs--set-up-workspace (config)
+  (wacs--with-property (before)
+    (save-window-excursion
+      (funcall before)))
+  (wacs--with-property (frame)
+    (wacs--set-frame frame))
+  (let ((main-window
+         (wacs--with-property (winconf)
+           (wacs--run-winconf winconf))))
+    (wacs--set-up-windows config main-window))
+  (wacs--with-property (after)
+    (save-window-excursion
+      (funcall after)))
+  (message "wacspace configured")
+  (wacspace-save arg))
+
 ;;;###autoload
 (defun wacspace (&optional arg)
-  "Set up your Emacs workspace. First, wacspace will try to
-restore a window configuration saved with prefix ARG. If that
-doesn't work, wacspace will set up your workspace based on your
-configuration."
+  "Set up your Emacs workspace. If there is a saved configuration
+with numeric prefix ARG, restore that. Otherwise, set up your
+workspace based on your wacspace configuration. If called with
+universal prefix arg (C-u), force reconfiguration even if there
+is a saved workspace."
   (interactive "P")
+  (when (wacs--u-prefix? arg)
+    (wacs-clear-saved (current-buffer))
+    (setq arg nil))
   (unless (wacspace-restore arg)
-    (let ((wacs-main-buffer (current-buffer)))
-      (let ((config (wacs--get-config arg)))
-        (if config
-            (let ((wacs-project-base-file
-                   (or (cdr (assoc :base-file config))
-                       wacs-project-base-file)))
-              (wacs--with-property (before)
-                (save-window-excursion
-                  (funcall before)))
-              (wacs--with-property (frame)
-                (wacs--set-frame frame))
-              (let ((main-window
-                     (wacs--with-property (winconf)
-                       (wacs--run-winconf winconf))))
-                (wacs--set-up-windows config main-window))
-              (wacs--with-property (after)
-                (save-window-excursion
-                  (funcall after)))
-              (message "wacspace configured")
-              (wacspace-save arg))
-          (message
-           "No wacspace configuration available for the current mode."))))))
+    (-if-let* ((wacs-main-buffer (current-buffer))
+               (config (wacs--get-config arg))
+               (wacs-project-base-file
+                (or (cdr (assoc :base-file config))
+                    wacs-project-base-file
+                    (file-name-nondirectory (buffer-file-name)))))
+      (wacs--set-up-workspace config)
+      (message
+       "No wacspace configuration available for the current mode."))))
 
 ;;;###autoload
 (defun wacspace-save (&optional arg)

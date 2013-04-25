@@ -131,3 +131,15 @@ Feature: Save/restore workspace
     Then there should be 2 windows
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*ruby*"
+
+  Scenario: Prefix forces re-se-up
+    When I switch to the next window
+    And I switch to buffer "*scratch*"
+    And I press "C-c s"
+    And I switch to the next window
+    And I press "C-c w"
+    Then I should be in buffer "*main*"
+    And the 2nd window should be in buffer "*scratch*"
+    When I press "C-u C-c w"
+    Then I should be in buffer "*main*"
+    And the 2nd window should be in buffer "*ruby*"

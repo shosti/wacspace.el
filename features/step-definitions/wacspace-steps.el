@@ -32,7 +32,7 @@
 
 (And "^the \\([0-9]+\\)\\(st\\|nd\\|rd\\|th\\) window should be in buffer \"\\([^\"]+\\)\"$"
   (lambda (n _ expected-name)
-    (save-excursion
+    (save-window-excursion
       (select-window (window-at 1 1))
       (other-window (- (string-to-number n) 1))
       (assert (equal expected-name (buffer-name)) nil
@@ -88,7 +88,6 @@
 
 (And "^I create the directory \"\\([^\"]+\\)\"$"
   (lambda (dirname)
-    (print (concat project-dir dirname))
     (make-directory (concat project-dir dirname))))
 
 (Then "^I should be in \\([-a-z]+-mode\\)$"
