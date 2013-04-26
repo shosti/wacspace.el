@@ -67,3 +67,4 @@ Feature: Use configuration functions with dynamic vars
     And I switch to the next window
     Then I should be in buffer "*shell*<wacsproject>"
     And the current directory should be the base directory
+    And the value of wacs-project-base-file should be ".project"

@@ -94,3 +94,10 @@
   (lambda (mode-string)
     (assert (equal major-mode (intern mode-string)) nil
             "Mode should be %s but is %s" major-mode mode-string)))
+
+(And "^the value of \\([-a-z]+\\) should be \"\\([^\"]+\\)\"$"
+       (lambda (symbol-name val)
+         (let ((symbol-val (symbol-value (intern symbol-name))))
+           (assert (equal symbol-val val) nil
+                    "Symbol %s should equal %s but is %s"
+                    symbol-name val symbol-val))))

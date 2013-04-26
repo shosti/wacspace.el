@@ -330,7 +330,9 @@ MAIN-WINDOW is the window from which `wacspace' was called."
                             (switch-to-buffer wacs-main-buffer)
                           (wacs--switch-to-buffer
                            (cdr buffer-conf))))
-               (:cmd (funcall (cdr buffer-conf)))))))
+               (:cmd (funcall (cdr buffer-conf)))))
+           (setq-local wacs-project-base-file
+                       wacs-project-base-file)))
   (select-window main-window)
   (wacs--switch-to-window-with-buffer wacs-main-buffer))
 
