@@ -43,6 +43,7 @@
  (get-buffer-create "*main*")
  (global-set-key (kbd "C-c w") 'wacspace)
  (global-set-key (kbd "C-c s") 'wacspace-save)
+ (global-set-key (kbd "C-c c") 'wacspace-switch)
  (defun yes-or-no-p (prompt) t))
 
 (Before
@@ -53,7 +54,8 @@
 
 (After
  (--each (buffer-list)
-   (when (string-match "\\*e?shell\\*" (buffer-name it))
+   (when (or (string-match "\\*e?shell\\*" (buffer-name it))
+             (buffer-file-name it))
      (kill-buffer it))))
 
 (Teardown

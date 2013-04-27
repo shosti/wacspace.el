@@ -79,15 +79,16 @@ buffer after restoring or setting up.")
   "Return the project directory of `wacs-main-buffer'.
 Looks for wacs-project-base-file. If not found, defaults to the
 current directory."
-  (let ((fname (file-name-directory
-                (buffer-file-name wacs-main-buffer))))
-    (expand-file-name
-     (-if-let* ((base-file wacs-project-base-file)
-                (project-dir (locate-dominating-file
-                              fname
-                              wacs-project-base-file)))
-       project-dir
-       (file-name-directory fname)))))
+  (-if-let (dir (buffer-file-name wacs-main-buffer))
+    (let ((fname (file-name-directory dir)))
+      (expand-file-name
+       (-if-let* ((base-file wacs-project-base-file)
+                  (project-dir (locate-dominating-file
+                                fname
+                                base-file)))
+         project-dir
+         (file-name-directory fname))))
+    default-directory))
 
 (defun wacs-project-name ()
   "Return the name of the current project."
@@ -144,6 +145,9 @@ Should not be altered manually—use `wacspace-save' insetad.")
 Should not be altered manually—use the :project-name-fn option
 instead.")
 
+(defvar wacs--open-projects nil
+  "Alist with configuration for currently open projects.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions and macros ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -183,11 +187,15 @@ funcall FN."
                   (equal (car entry) key))
                 alist))
 
-(defun wacs--alist-put (key val alist)
+(defun wacs--alist-put (key val alist-sym)
   "Push (KEY . VAL) into alist ALIST.
 If KEY already exists as a key in ALIST, delete the entry."
-  (wacs--alist-delete key alist)
-  (push (cons key val) alist))
+  (wacs--alist-delete key (symbol-value alist-sym))
+  (push (cons key val) (symbol-value alist-sym)))
+
+(defun wacs--alist-get (key alist)
+  "Get element associated with KEY from ALIST."
+  (cdr (assoc key alist)))
 
 (defun wacs--u-prefix? (arg)
   "Test whether ARG is universal prefix argument."
@@ -213,24 +221,24 @@ If KEY already exists as a key in ALIST, delete the entry."
                    :default)))
     (append (--filter (not (memq (car it) wacs--numeric-confs))
                       config)
-            (cdr (assq arg-key config)))))
+            (wacs--alist-get arg-key config))))
 
 (defun wacs--get-config (&optional arg)
   "Get the configuration with prefix ARG associated with the current buffer."
-  (let* ((mode-config-list (cdr (assoc major-mode wacs--config)))
+  (let* ((mode-config-list (wacs--alist-get major-mode wacs--config))
          (config
           (cl-dolist (aux-cond-pair mode-config-list)
             (unless (eq (car aux-cond-pair) :default)
               (when (wacs--eval-aux-cond (car aux-cond-pair))
                 (cl-return (cdr aux-cond-pair)))))))
     (wacs--resolve-config (if config config
-                            (cdr (assq :default mode-config-list)))
+                            (wacs--alist-get :default mode-config-list))
                           arg)))
 
 (defun wacs--process-config (config)
   "Process CONFIG for inclusion in `wacs--config'."
   (let ((default-conf (-map 'wacs--list->dotted-pair
-                            (cdr (assq :default config)))))
+                            (wacs--alist-get :default config))))
     (unless default-conf
       (error
        "Please include a :default configuration for the wacspace"))
@@ -286,7 +294,7 @@ FRAME and FN should be passed unquoted."
 (defun wacs--run-winconf (conf-name)
   "Run winconf with name CONF-NAME."
   (delete-other-windows)
-  (-if-let (winconf (cdr (assoc conf-name wacs--winconfs)))
+  (-if-let (winconf (wacs--alist-get conf-name wacs--winconfs))
     (let ((main-window (selected-window)))
       (funcall winconf)
       (select-window main-window)
@@ -295,14 +303,14 @@ FRAME and FN should be passed unquoted."
 
 (defun wacs--set-frame (frame)
   "Set the frame using the function set for FRAME."
-  (-if-let (frame-fn (cdr (assq frame wacs--frame-fns)))
+  (-if-let (frame-fn (wacs--alist-get frame wacs--frame-fns))
     (funcall frame-fn)
     (message "No frame fn specified for frame alignment %s" frame)))
 
 (cl-defmacro wacs--with-property ((prop) &body body)
   "Helper macro for using properties within configurations."
   (let ((prop-keyword (intern (concat ":" (symbol-name prop)))))
-    `(let ((,prop (cdr (assoc ,prop-keyword config))))
+    `(let ((,prop (wacs--alist-get ,prop-keyword config)))
        (when ,prop
          ,@body))))
 
@@ -332,7 +340,7 @@ MAIN-WINDOW is the window from which `wacspace' was called."
   (-each (-take (length (window-list))
                 '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
          (lambda (win-key)
-           (-when-let (buffer-conf (cdr (assq win-key config)))
+           (-when-let (buffer-conf (wacs--alist-get win-key config))
              (select-window main-window)
              (other-window (string-to-number
                             (substring (symbol-name win-key) -1)))
@@ -350,10 +358,10 @@ MAIN-WINDOW is the window from which `wacspace' was called."
 (defun wacs--set-up-workspace (arg config)
   "Given CONFIG, set up the workspace."
   (let ((wacs-project-base-file
-         (or (cdr (assoc :base-file config))
+         (or (wacs--alist-get :base-file config)
              wacs-project-base-file
              (file-name-nondirectory (buffer-file-name))))
-        (wacs--project-name-fn (cdr (assq :project-name-fn config))))
+        (wacs--project-name-fn (wacs--alist-get :project-name-fn config)))
     (wacs--with-property (before)
       (save-window-excursion
         (funcall before)))
@@ -385,8 +393,11 @@ workspace."
     (-if-let* ((wacs-main-buffer (current-buffer))
                (config (wacs--get-config arg)))
       (wacs--set-up-workspace arg config)
-      (message
-       "No wacspace configuration available for the current mode."))))
+      (error
+       "No wacspace configuration available for the current mode.")))
+  (wacs--alist-put (wacs-project-name)
+                   (cons (current-buffer) arg)
+                   'wacs--open-projects))
 
 ;;;###autoload
 (defun wacspace-save (&optional arg)
@@ -405,7 +416,7 @@ restored."
          (new-config-alist
           (wacs--alist-put (or arg :default)
                            (cons config current-buffers)
-                           config-symbol-alist)))
+                           'config-symbol-alist)))
     (--each (window-list)
       (puthash (window-buffer it)
                new-config-alist
@@ -437,6 +448,22 @@ configuration."
           (goto-char pos)
           (message "wacspace restored")
           t)))))
+
+(defun wacspace-switch ()
+  "Quickly switch between open projects."
+  (interactive)
+  (if (or (null wacs--open-projects)
+          (= (length wacs--open-projects) 1))
+      (message "No other projects open")
+    (let* ((project-names (-map 'car wacs--open-projects))
+           (project (completing-read "Project: " project-names
+                                     nil t nil nil
+                                     (cadr project-names)))
+           (config (wacs--alist-get project wacs--open-projects))
+           (buffer (car config))
+           (last-prefix (cdr config)))
+      (set-buffer buffer)
+      (wacspace last-prefix))))
 
 (defun wacs-clear-saved (&optional buffer)
   "Clear saved workspaces associated with BUFFER.
