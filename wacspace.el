@@ -181,17 +181,18 @@ funcall FN."
         (cons (car list) (wacs--list->dotted-pair snd))
       (cons (car list) (cadr list)))))
 
-(defun wacs--alist-delete (key alist)
+(defmacro wacs--alist-delete (key alist)
   "Delete KEY from alist ALIST."
-  (cl-delete-if (lambda (entry)
-                  (equal (car entry) key))
-                alist))
+  `(setq ,alist
+         (cl-delete-if (lambda (entry)
+                         (equal (car entry) ,key))
+                       ,alist)))
 
-(defun wacs--alist-put (key val alist-sym)
+(defmacro wacs--alist-put (key val alist)
   "Push (KEY . VAL) into alist ALIST.
 If KEY already exists as a key in ALIST, delete the entry."
-  (wacs--alist-delete key (symbol-value alist-sym))
-  (push (cons key val) (symbol-value alist-sym)))
+  `(progn (wacs--alist-delete ,key ,alist)
+          (push (cons ,key ,val) ,alist)))
 
 (defun wacs--alist-get (key alist)
   "Get element associated with KEY from ALIST."
@@ -277,15 +278,15 @@ documentation of configuration options, see the README."
 This is defined as a function (e.g. a sequence of window
 splitting commands). The function need not stop with the original
 window active."
-  `(push (cons ',conf-name
-               '(lambda () ,@body))
-         wacs--winconfs))
+  `(wacs--alist-put  ',conf-name
+                     '(lambda () ,@body)
+                     wacs--winconfs))
 
 ;;;###autoload
 (defmacro wacs-set-frame-fn (frame fn)
   "Set the given FRAME parameter to FN.
 FRAME and FN should be passed unquoted."
-  `(push (cons ',frame ',fn) wacs--frame-fns))
+  `(wacs--alist-put ',frame ',fn wacs--frame-fns))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Interactive functions ;;
@@ -377,6 +378,12 @@ MAIN-WINDOW is the window from which `wacspace' was called."
     (message "wacspace configured")
     (wacspace-save arg)))
 
+(defun wacs--update-open-projects (buffer arg)
+  (let ((project-name (wacs-project-name)))
+    (wacs--alist-put project-name
+                     (cons buffer arg)
+                     wacs--open-projects)))
+
 ;;;###autoload
 (defun wacspace (&optional arg)
   "Set up your Emacs workspace.
@@ -395,9 +402,7 @@ workspace."
       (wacs--set-up-workspace arg config)
       (error
        "No wacspace configuration available for the current mode.")))
-  (wacs--alist-put (wacs-project-name)
-                   (cons (current-buffer) arg)
-                   'wacs--open-projects))
+  (wacs--update-open-projects (current-buffer) arg))
 
 ;;;###autoload
 (defun wacspace-save (&optional arg)
@@ -416,7 +421,7 @@ restored."
          (new-config-alist
           (wacs--alist-put (or arg :default)
                            (cons config current-buffers)
-                           'config-symbol-alist)))
+                           config-symbol-alist)))
     (--each (window-list)
       (puthash (window-buffer it)
                new-config-alist
