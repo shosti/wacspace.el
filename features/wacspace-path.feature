@@ -68,3 +68,19 @@ Feature: Use configuration functions with dynamic vars
     Then I should be in buffer "*shell*<wacsproject>"
     And the current directory should be the base directory
     And the value of wacs-project-base-file should be ".project"
+
+  Scenario: Using the project name option
+    When I load the following:
+    """
+    (defwacspace (emacs-lisp-mode)
+      (:project-name-fn (lambda ()
+                          "coolproj"))
+      (:default
+       (:winconf 2winv)
+       (:aux1 (:cmd wacs-eshell))))
+    """
+    And I visit the file "main.el"
+    And I save the buffer
+    And I turn on emacs-lisp-mode
+    And I press "C-c w"
+    Then the 2nd window should be in buffer "*eshell*<coolproj>"

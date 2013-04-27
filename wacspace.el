@@ -76,21 +76,27 @@ buffer after restoring or setting up.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun wacs-project-dir ()
-  "Return the project directory of `wacs-main-buffer'."
+  "Return the project directory of `wacs-main-buffer'.
+Looks for wacs-project-base-file. If not found, defaults to the
+current directory."
   (let ((fname (file-name-directory
                 (buffer-file-name wacs-main-buffer))))
     (expand-file-name
-     (if wacs-project-base-file
-         (locate-dominating-file fname
-                                 wacs-project-base-file)
+     (-if-let* ((base-file wacs-project-base-file)
+                (project-dir (locate-dominating-file
+                              fname
+                              wacs-project-base-file)))
+       project-dir
        (file-name-directory fname)))))
 
 (defun wacs-project-name ()
   "Return the name of the current project."
-  (-> (wacs-project-dir)
-    (split-string "/" t)
-    (last)
-    (car)))
+  (if wacs--project-name-fn
+      (funcall wacs--project-name-fn)
+    (-> (wacs-project-dir)
+      (split-string "/" t)
+      (last)
+      (car))))
 
 (defun wacs-eshell ()
   "Open an eshell in the main project directory."
@@ -132,6 +138,11 @@ Should not be altered manually—use `wacspace-save' insetad.")
 
 (defconst wacs--numeric-confs '(:default :1 :2 :3 :4 :5 :6 :7 :8 :9)
   "The numeric prefix configurations available to `wacspace'.")
+
+(defvar wacs--project-name-fn nil
+  "Function to determine the current project's name.
+Should not be altered manually—use the :project-name-fn option
+instead.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions and macros ;;
@@ -338,20 +349,25 @@ MAIN-WINDOW is the window from which `wacspace' was called."
 
 (defun wacs--set-up-workspace (arg config)
   "Given CONFIG, set up the workspace."
-  (wacs--with-property (before)
-    (save-window-excursion
-      (funcall before)))
-  (wacs--with-property (frame)
-    (wacs--set-frame frame))
-  (let ((main-window
-         (wacs--with-property (winconf)
-           (wacs--run-winconf winconf))))
-    (wacs--set-up-windows config main-window))
-  (wacs--with-property (after)
-    (save-window-excursion
-      (funcall after)))
-  (message "wacspace configured")
-  (wacspace-save arg))
+  (let ((wacs-project-base-file
+         (or (cdr (assoc :base-file config))
+             wacs-project-base-file
+             (file-name-nondirectory (buffer-file-name))))
+        (wacs--project-name-fn (cdr (assq :project-name-fn config))))
+    (wacs--with-property (before)
+      (save-window-excursion
+        (funcall before)))
+    (wacs--with-property (frame)
+      (wacs--set-frame frame))
+    (let ((main-window
+           (wacs--with-property (winconf)
+             (wacs--run-winconf winconf))))
+      (wacs--set-up-windows config main-window))
+    (wacs--with-property (after)
+      (save-window-excursion
+        (funcall after)))
+    (message "wacspace configured")
+    (wacspace-save arg)))
 
 ;;;###autoload
 (defun wacspace (&optional arg)
@@ -367,11 +383,7 @@ workspace."
     (setq arg nil))
   (unless (wacspace-restore arg)
     (-if-let* ((wacs-main-buffer (current-buffer))
-               (config (wacs--get-config arg))
-               (wacs-project-base-file
-                (or (cdr (assoc :base-file config))
-                    wacs-project-base-file
-                    (file-name-nondirectory (buffer-file-name)))))
+               (config (wacs--get-config arg)))
       (wacs--set-up-workspace arg config)
       (message
        "No wacspace configuration available for the current mode."))))
