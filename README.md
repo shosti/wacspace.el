@@ -15,12 +15,13 @@ and Melpa).
 
 ## Usage
 
-Using wacspace is very easy: just bind `wacspace` and `wacspace-save`
-to convenient key sequences like so:
+Using wacspace is very easy: just bind `wacspace`, `wacspace-save`,
+and `wacspace-switch` to convenient key sequences like so:
 
 ```cl
 (global-set-key (kbd "C-c w") 'wacspace)
 (global-set-key (kbd "C-c s") 'wacspace-save)
+(global-set-key (kbd "C-c t") 'wacspace-switch)
 ```
 
 (You can use any keybindings you like.) Then, use `wacspace` when
@@ -46,11 +47,26 @@ configuration and use `wacspace`, it will again set up the workspace
 according to your configuration. Thus, `wacspace` should "just work"
 most of the time—if you want concrete behavior examples, check out
 [features/wacs-save.feature](https://github.com/shosti/wacspace.el/blob/master/features/wacspace-save.feature).
-If you want to clear all saved wacspaces, use `wacs-clear-all-saved`.
+If you want to force reconfiguration of a workspace, use `C-u
+wacspace`, which will clear the saved workspaces associated with the
+current buffer.
 
 If the variable `wacs-save-frame` is set to `t` (which it is by
 default), `wacspace` will save and restore frame configuration as well
 as window configuration.
+
+### Quickly switching between projects
+
+Managing project workspaces is easy with wacspace. When you use
+`wacspace`, wacspace will associate your workspace with a project name
+(by default, the name of the enclosing folder that contains a `.git`,
+but this is configurable). You can then easily switch between projects
+using `wacspace-switch`, which will prompt for a project name (for
+best results, use `ido-mode`, which you should be anyway). Wacspace
+will even remember which prefix key you used last in that particular
+project, so you can resume right where you left off. Wacspace also
+comes with a number of functions that help you set up project-specific
+helper windows (see later).
 
 ## Configuration
 
@@ -88,21 +104,23 @@ no need for quoting).
 
 The configuration currently supports the following options:
 
-- `:before` A function to run before setting up the workspace
-- `:default` The default configuration
-- `:[1-9]` The configuration to use with the corresponding prefix
+- `:before` A function to run before setting up the workspace.
+- `:default` The default configuration.
+- `:[1-9]` The configuration to use with the corresponding prefix.
   keys. Note that these inherit from the default configuration.
-- `:after` A function to run after setting up the workspace
+- `:after` A function to run after setting up the workspace.
 - `:base-file` A filename to look for to find the project root (useful
   for the path helper functions). Defaults to `".git"`.
+- `:project-name-fn` A function to customize the project name (should
+  return a string).
 
 Within the configurations, the following options are available:
 
-- `:winconf` The window configuration to use (see later)
-- `:frame` The frame alignment to use (see later)
-- `:main` The top-left window
+- `:winconf` The window configuration to use (see later).
+- `:frame` The frame alignment to use (see later).
+- `:main` The top-left window.
 - `:aux[1-5]` Auxiliary window number 1-5 (in the order of
-  `other-window`)
+  `other-window`).
 
 There are 2 options to set up a window:
 
@@ -112,7 +130,43 @@ There are 2 options to set up a window:
   default), wacspace will try to switch to the most recent buffer with
   a regexp match; if none is found, it will switch to a new buffer
   with that name.
-- `:cmd` a command to invoke
+- `:cmd` A command to invoke.
+
+### Aliases and defaults
+
+You can also specify default wacspaces, which will be run when no
+wacspace associated with a major mode is found:
+
+```cl
+(defwacspace (:default)
+ (:default
+  (:aux1 (:cmd wacs-eshell))))
+
+(defwacspace (:default rinari-minor-mode)
+ (:before rinari-console)
+ (:aux1 (:buffer "*rails console*"))
+```
+
+Another useful option is to specify wacspace aliases:
+
+```cl
+(defwacsalias (js-mode rinari-minor-mode)
+ (ruby-mode rinari-minor-mode))
+```
+
+As you might expect, the above example means that when you're in a
+buffer in `js-mode` and `rinari-minor-mode`, `wacspace` will run as if
+you're in `ruby-mode` and `rinari-minor-mode`.
+
+One thing to be aware of is the specific order in which `wacspace`
+will look for configurations:
+
+1. Wacspaces with auxiliary conditions
+2. Aliases with auxiliary conditions
+3. Wacspaces without auxiliary conditions
+4. Aliases without auxiliary conditions
+5. `:default` wacspace with auxiliary conditions
+6. `:default` wacspace with auxiliary conditions
 
 ### Path Helpers
 
