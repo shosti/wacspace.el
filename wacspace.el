@@ -243,22 +243,16 @@ Appends the default configuration."
                       config)
             (wacs--alist-get arg-key config))))
 
-(defun wacs--get-cond-config-from-alist (config-alist &optional default)
+(defun wacs--get-cond-config-from-alist (config-alist)
   "Get the first first configuration with a satisfied auxiliary condition from CONFIG-ALIST."
-  (let ((mode-config-list (wacs--alist-get
-                           (if default :default major-mode)
-                           config-alist)))
-    (cl-dolist (aux-cond-pair mode-config-list)
-      (unless (eq (car aux-cond-pair) :default)
-        (when (wacs--eval-aux-cond (car aux-cond-pair))
-          (cl-return (cdr aux-cond-pair)))))))
+  (cl-dolist (aux-cond-pair config-alist)
+    (unless (eq (car aux-cond-pair) :default)
+      (when (wacs--eval-aux-cond (car aux-cond-pair))
+        (cl-return (cdr aux-cond-pair))))))
 
-(defun wacs--get-default-config-from-alist (config-alist
-                                            &optional default)
+(defun wacs--get-default-config-from-alist (config-alist)
   "Get the :default configuration for the current major mode from CONFIG-ALIST."
-  (wacs--alist-get :default
-                   (wacs--alist-get (if default :default major-mode)
-                                    config-alist)))
+  (wacs--alist-get :default config-alist))
 
 (defun wacs--get-aliased-config (entry)
   "Get the configuration pointed to by alias entry ENTRY."
@@ -276,37 +270,46 @@ configuration without an auxiliary condition. Then, search for an
 alias without an auxiliary condition. Then, search for the
 default configuration with an auxiliary condition. Then, search
 for the default configuration. Then give up. Whew."
-   (let (config)
-     (cl-block find-config
-       (-when-let (cond-config (wacs--get-cond-config-from-alist
-                                     wacs--config))
-         (setq config cond-config)
-         (cl-return-from find-config))
-       (-when-let (cond-alias (wacs--get-cond-config-from-alist
-                               wacs--aliases))
-         (setq config (wacs--get-aliased-config cond-alias))
-         (cl-return-from find-config))
-       (-when-let (default-config (wacs--get-default-config-from-alist
-                                   wacs--config))
-         (setq config default-config)
-         (cl-return-from find-config))
-       (-when-let (default-alias (wacs--get-default-config-from-alist
-                                  wacs--aliases))
-         (setq config (wacs--get-aliased-config default-alias))
-         (cl-return-from find-config))
-       (-when-let (global-default-cond-config
-                   (wacs--get-cond-config-from-alist
-                    wacs--config
-                    t))
-         (setq config global-default-cond-config)
-         (cl-return-from find-config))
-       (-when-let (global-default-config
-                   (wacs--get-default-config-from-alist
-                    wacs--config
-                    t))
-         (setq config global-default-config)
-         (cl-return-from find-config)))
-     (wacs--resolve-prefix config arg)))
+  (let (mode-config mode-alias global-default-config)
+    (let ((config
+           (cl-block find-config
+             (setq mode-config (wacs--alist-get major-mode wacs--config))
+
+             (-when-let (cond-config (wacs--get-cond-config-from-alist
+                                      mode-config))
+               (cl-return-from find-config cond-config))
+
+             (setq mode-alias (wacs--alist-get major-mode wacs--aliases))
+
+             (-when-let (cond-alias (wacs--get-cond-config-from-alist
+                                     mode-alias))
+               (cl-return-from find-config
+                 (wacs--get-aliased-config cond-alias)))
+
+             (-when-let (mode-default-config
+                         (wacs--get-default-config-from-alist
+                          mode-config))
+               (cl-return-from find-config mode-default-config))
+
+             (-when-let (mode-default-alias
+                         (wacs--get-default-config-from-alist
+                          mode-alias))
+               (cl-return-from find-config
+                 (wacs--get-aliased-config mode-default-alias)))
+
+             (setq global-default-config
+                   (wacs--alist-get :default wacs--config))
+
+             (-when-let (default-cond-config
+                         (wacs--get-cond-config-from-alist
+                          global-default-config))
+               (cl-return-from find-config default-cond-config))
+
+             (-when-let (default-config
+                         (wacs--get-default-config-from-alist
+                          global-default-config))
+               (cl-return-from find-config default-config)))))
+      (wacs--resolve-prefix config arg))))
 
 (defun wacs--process-config (config)
   "Process CONFIG for inclusion in `wacs--config'."
