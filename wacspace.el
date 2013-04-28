@@ -604,6 +604,8 @@ current buffer."
 ;; Standard configuration ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defwinconf 1win)
+
 (defwinconf 3winv
   (split-window-right)
   (other-window 1)
