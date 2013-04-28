@@ -243,18 +243,22 @@ Appends the default configuration."
                       config)
             (wacs--alist-get arg-key config))))
 
-(defun wacs--get-cond-config-from-alist (config-alist)
+(defun wacs--get-cond-config-from-alist (config-alist &optional default)
   "Get the first first configuration with a satisfied auxiliary condition from CONFIG-ALIST."
-  (let ((mode-config-list (wacs--alist-get major-mode config-alist)))
+  (let ((mode-config-list (wacs--alist-get
+                           (if default :default major-mode)
+                           config-alist)))
     (cl-dolist (aux-cond-pair mode-config-list)
       (unless (eq (car aux-cond-pair) :default)
         (when (wacs--eval-aux-cond (car aux-cond-pair))
           (cl-return (cdr aux-cond-pair)))))))
 
-(defun wacs--get-default-config-from-alist (config-alist)
+(defun wacs--get-default-config-from-alist (config-alist
+                                            &optional default)
   "Get the :default configuration for the current major mode from CONFIG-ALIST."
   (wacs--alist-get :default
-                   (wacs--alist-get major-mode config-alist)))
+                   (wacs--alist-get (if default :default major-mode)
+                                    config-alist)))
 
 (defun wacs--get-aliased-config (entry)
   "Get the configuration pointed to by alias entry ENTRY."
@@ -268,12 +272,14 @@ Appends the default configuration."
 First, search for a wacspace configuration with a satisfactory
 auxiliary condition. Then, search for an alias with a
 satisfactory auxiliary condition. Then, search for a
-configuration without an auxiliary condition. Finally, search for
-an alias without an auxiliary condition. Then give up. Whew."
+configuration without an auxiliary condition. Then, search for an
+alias without an auxiliary condition. Then, search for the
+default configuration with an auxiliary condition. Then, search
+for the default configuration. Then give up. Whew."
    (let (config)
      (cl-block find-config
        (-when-let (cond-config (wacs--get-cond-config-from-alist
-                                wacs--config))
+                                     wacs--config))
          (setq config cond-config)
          (cl-return-from find-config))
        (-when-let (cond-alias (wacs--get-cond-config-from-alist
@@ -287,6 +293,18 @@ an alias without an auxiliary condition. Then give up. Whew."
        (-when-let (default-alias (wacs--get-default-config-from-alist
                                   wacs--aliases))
          (setq config (wacs--get-aliased-config default-alias))
+         (cl-return-from find-config))
+       (-when-let (global-default-cond-config
+                   (wacs--get-cond-config-from-alist
+                    wacs--config
+                    t))
+         (setq config global-default-cond-config)
+         (cl-return-from find-config))
+       (-when-let (global-default-config
+                   (wacs--get-default-config-from-alist
+                    wacs--config
+                    t))
+         (setq config global-default-config)
          (cl-return-from find-config)))
      (wacs--resolve-prefix config arg)))
 

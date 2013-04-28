@@ -37,6 +37,17 @@ Feature: Set up workspace
        (:frame right)
        (:main (:buffer "*ruby*"))
        (:aux1 (:buffer :main))))
+
+    (defwacspace (:default)
+      (:default
+       (:winconf 2winv)
+       (:aux1 (:cmd shell))))
+
+    (defwacspace (:default rinari-minor-mode)
+      (:default
+       (:winconf 3winv)
+       (:aux1 (:cmd eshell))
+       (:aux2 (:cmd shell))))
     """
     And I am in buffer "*main*" in ruby-mode
 
@@ -116,3 +127,19 @@ Feature: Set up workspace
      And I press "C-c w"
      Then there should be 2 windows
      And the 2nd window should be in buffer "*ruby*"
+
+   Scenario: Default configuration
+     When I am in buffer "*py*" in python-mode
+     And I press "C-c w"
+     Then there should be 2 windows
+     And I should be in buffer "*py*"
+     And the 2nd window should be in buffer "*shell*"
+
+   Scenario: Default configuration with auxiliary condition
+     When I am in buffer "*html*" in html-mode
+     And I turn on rinari-minor-mode
+     And I press "C-c w"
+     Then there should be 3 windows
+     And I should be in buffer "*html*"
+     And the 2nd window should be in buffer "*eshell*"
+     And the 3rd window should be in buffer "*shell*"
