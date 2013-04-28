@@ -3,7 +3,7 @@ wacspace.el [![Build Status](https://travis-ci.org/shosti/wacspace.el.png)](http
 
 The WACky WorkSPACE manager for emACS.
 
-## Installation
+## Installation and Basic Setup
 
 Wacspace is available on [Marmalade](http://marmalade-repo.org/) and
 [Melpa](http://melpa.milkbox.net/), so you can install easily with
@@ -13,23 +13,32 @@ load path and `(require 'wacspace)`. Wacspace requires cl-lib
 [dash.el](https://github.com/magnars/dash.el) (available on Marmalade
 and Melpa).
 
-## Usage
-
-Using wacspace is very easy: just bind `wacspace`, `wacspace-save`,
-and `wacspace-switch` to convenient key sequences like so:
+The easiest way to set up wacspace is to just put `(wacs-set-up-keys)`
+into your Emacs configuration somewhere. This will set up `C-z` as a
+prefix key with the various wacspace commands in convenient bindings.
+If for some reason you don't want to use `C-z` as a prefix, you can
+put something like the following in your configuration:
 
 ```cl
-(global-set-key (kbd "C-c w") 'wacspace)
-(global-set-key (kbd "C-c s") 'wacspace-save)
-(global-set-key (kbd "C-c t") 'wacspace-switch)
+(wacs-set-up-prefix)
+(global-set-key (kbd "C-c C-w") 'wacs-prefix-map)
 ```
 
-(You can use any keybindings you like.) Then, use `wacspace` when
-you're visiting a file of a particular type, with or without a prefix
-key. Your workspace (windows, buffers, and frame alignment) will be
-automatically set up. To use an alternate workspace for a given file
-type, use numeric prefix keys—wacspace supports up to 10
-configurations for a given file type.
+(In this example, `C-c C-w` would be the wacspace prefix.) If you
+don't want to use the prefix map, you can also use your own custom
+keybindings. The only commands you need to bind are `wacspace`,
+`wacspace-save`, and `wacspace-switch-project`.
+
+## Usage
+
+Once you have a good configuration (see below), using wacspace is very
+easy: just press `C-z C-w` (or `M-x wacspace`) when you're in a
+buffer, and your workspace (windows, buffers, and frame) will be
+automatically set up according to your current mode. `C-z C-w` will
+use the default configuration for the mode, but you can also use
+alternate workspaces (wacspace supports up to 10, including the
+default). To use workspace number 3, for example, press `C-z C-3` (or
+`C-3 M-x wacspace`).
 
 ### Saving and restoring
 
@@ -39,21 +48,21 @@ set up, wacspace will automatically save your window configuration. If
 you use `wacspace` on any of the buffers that were set up this way, it
 will jump to the window setup without re-running your configuration.
 
-You can also save your configuration at any time using
-(unsurprisingly) `wacspace-save`. `wacspace-save` can also use a
-numeric prefix, in which case using `wacspace` with that numeric
-prefix will access that saved workspace. When you kill a buffer in the
-configuration and use `wacspace`, it will again set up the workspace
-according to your configuration. Thus, `wacspace` should "just work"
-most of the time—if you want concrete behavior examples, check out
+You can also save your configuration at any time using `C-z C-s` (or
+`M-x wacspace-save`). `wacspace-save` can also use a numeric prefix,
+in which case using `wacspace` with that numeric prefix will access
+that saved workspace. When you kill a buffer in the configuration and
+use `wacspace`, it will again set up the workspace according to your
+configuration. Thus, `wacspace` should "just work" most of the time—if
+you want concrete behavior examples, check out
 [features/wacs-save.feature](https://github.com/shosti/wacspace.el/blob/master/features/wacspace-save.feature).
-If you want to force reconfiguration of a workspace, use `C-u
-wacspace`, which will clear the saved workspaces associated with the
+If you want to force reconfiguration of a workspace, use `C-u C-z
+C-w`, which will clear the saved workspaces associated with the
 current buffer.
 
 If the variable `wacs-save-frame` is set to `t` (which it is by
-default), `wacspace` will save and restore frame configuration as well
-as window configuration.
+default unless you're running Emacs in a terminal), `wacspace` will
+save and restore frame configuration as well as window configuration.
 
 ### Quickly switching between projects
 
@@ -61,12 +70,12 @@ Managing project workspaces is easy with wacspace. When you use
 `wacspace`, wacspace will associate your workspace with a project name
 (by default, the name of the enclosing folder that contains a `.git`,
 but this is configurable). You can then easily switch between projects
-using `wacspace-switch`, which will prompt for a project name (for
-best results, use `ido-mode`, which you should be anyway). Wacspace
-will even remember which prefix key you used last in that particular
-project, so you can resume right where you left off. Wacspace also
-comes with a number of functions that help you set up project-specific
-helper windows (see later).
+using `C-z C-p` (or `M-x wacspace-switch-project`), which will prompt
+for a project name (for best results, use `ido-mode`, which you should
+be using anyway). Wacspace will even remember which prefix key you
+used last in that particular project, so you can resume right where
+you left off. Wacspace also comes with a number of functions that help
+you set up project-specific helper windows (see later).
 
 ## Configuration
 
@@ -166,7 +175,7 @@ will look for configurations:
 3. Wacspaces without auxiliary conditions
 4. Aliases without auxiliary conditions
 5. `:default` wacspace with auxiliary conditions
-6. `:default` wacspace with auxiliary conditions
+6. `:default` wacspace without auxiliary conditions
 
 ### Path Helpers
 
@@ -205,6 +214,18 @@ define your own using `defwinconf`:
 assume that your function will start with just one window and you
 don't have to worry about having the primary window active in the end.
 Wacspace comes with some nice winconfs built in:
+
+#### 1win
+
+    +----------------------+
+    |                      |
+    |                      |
+    |                      |
+    |        :main         |
+    |                      |
+    |                      |
+    |                      |
+    +----------------------+
 
 #### 3winv
 
