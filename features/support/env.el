@@ -41,9 +41,7 @@
                       (setq frame-alignment "bottom")))
 
  (get-buffer-create "*main*")
- (global-set-key (kbd "C-c w") 'wacspace)
- (global-set-key (kbd "C-c s") 'wacspace-save)
- (global-set-key (kbd "C-c c") 'wacspace-switch)
+ (wacs-set-up-keys)
  (defun yes-or-no-p (prompt) t))
 
 (Before

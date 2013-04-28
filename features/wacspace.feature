@@ -53,7 +53,7 @@ Feature: Set up workspace
 
   Scenario: wacspace in rinari-mode
     When I turn on rinari-minor-mode
-    And I press "C-c w"
+    And I press "C-z C-w"
     Then there should be 3 windows
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*rails console*"
@@ -61,7 +61,7 @@ Feature: Set up workspace
 
   Scenario: wacspace in rinari-mode half-screen
     When I turn on rinari-minor-mode
-    And I press "C-3 C-c w"
+    And I press "C-z C-3"
     Then there should be 2 windows
     And I should be in buffer "*main*"
     And the frame should be right aligned
@@ -69,7 +69,7 @@ Feature: Set up workspace
 
   Scenario: wacspace in ruby-mode without rinari
     When I turn off rinari-minor-mode
-    And I press "C-c w"
+    And I press "C-z C-w"
     Then there should be 2 windows
     And I should be in buffer "*main*"
     And the 2nd window should be in buffer "*ruby*"
@@ -86,7 +86,7 @@ Feature: Set up workspace
      (setq wacs-regexp-buffer-switching t)
      """
      And I am in buffer "*main*" in ruby-mode
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 2 windows
      And I should be in buffer "*main*"
      And the 2nd window should be in buffer "*ruby*"
@@ -102,7 +102,7 @@ Feature: Set up workspace
         (:aux1 (:buffer "*baz*"))))
      """
      And I am in buffer "*main*" in ruby-mode
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 2 windows
      And I should be in buffer "*main*"
      And the 2nd window should be in buffer "*baz*"
@@ -119,18 +119,18 @@ Feature: Set up workspace
         (:aux1 (:buffer "*bar*"))))
      """
      And I am in buffer "*foo*" in ruby-mode
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 2 windows
      And I should be in buffer "*foo*"
      And the 2nd window should be in buffer "*bar*"
      When I switch to buffer "*main*"
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 2 windows
      And the 2nd window should be in buffer "*ruby*"
 
    Scenario: Default configuration
      When I am in buffer "*py*" in python-mode
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 2 windows
      And I should be in buffer "*py*"
      And the 2nd window should be in buffer "*shell*"
@@ -138,7 +138,7 @@ Feature: Set up workspace
    Scenario: Default configuration with auxiliary condition
      When I am in buffer "*html*" in html-mode
      And I turn on rinari-minor-mode
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 3 windows
      And I should be in buffer "*html*"
      And the 2nd window should be in buffer "*eshell*"

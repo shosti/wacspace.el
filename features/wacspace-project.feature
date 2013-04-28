@@ -19,7 +19,7 @@ Feature: Use wacspace to manage projects
     And I visit the file "main.el"
     And I save the buffer
     And I turn on emacs-lisp-mode
-    And I press "C-c w"
+    And I press "C-z C-w"
     And I switch to the next window
     Then I should be in buffer "*eshell*<wacsproject>"
     And the current directory should be the base directory
@@ -39,12 +39,12 @@ Feature: Use wacspace to manage projects
     And I visit the file "subdir/main.el"
     And I save the buffer
     And I turn on emacs-lisp-mode
-    And I press "C-c w"
+    And I press "C-z C-w"
     And I switch to the next window
     Then I should be in buffer "*eshell*<wacsproject>"
     And the current directory should be the base directory
     When I visit the file "other.el"
-    And I press "C-c w"
+    And I press "C-z C-w"
     And I switch to the next window
     Then I should be in buffer "*eshell*<wacsproject>"
 
@@ -63,7 +63,7 @@ Feature: Use wacspace to manage projects
     And I visit the file "subdir/main.el"
     And I save the buffer
     And I turn on emacs-lisp-mode
-    And I press "C-c w"
+    And I press "C-z C-w"
     And I switch to the next window
     Then I should be in buffer "*shell*<wacsproject>"
     And the current directory should be the base directory
@@ -82,7 +82,7 @@ Feature: Use wacspace to manage projects
     And I visit the file "main.el"
     And I save the buffer
     And I turn on emacs-lisp-mode
-    And I press "C-c w"
+    And I press "C-z C-w"
     Then the 2nd window should be in buffer "*eshell*<coolproj>"
 
   Scenario: Quickly switch between projects
@@ -96,13 +96,13 @@ Feature: Use wacspace to manage projects
     And I visit the file "main.el"
     And I save the buffer
     And I turn on emacs-lisp-mode
-    And I press "C-c w"
+    And I press "C-z C-w"
     And I am in the project "otherproject"
     And I visit the file "other.el"
-    And I press "C-c w"
+    And I press "C-z C-w"
     Then the 2nd window should be in buffer "*eshell*<otherproject>"
     When I start an action chain
-    And I press "C-c c"
+    And I press "C-z C-p"
     And I type "wacsproject"
     And I execute the action chain
     Then I should be in buffer "main.el"
@@ -121,16 +121,16 @@ Feature: Use wacspace to manage projects
     And I visit the file "main.el"
     And I save the buffer
     And I turn on emacs-lisp-mode
-    And I press "C-1 C-c w"
-    And I press "C-c w"
-    And I press "C-1 C-c w"
+    And I press "C-z C-1"
+    And I press "C-z C-w"
+    And I press "C-z C-1"
     Then the 2nd window should be in buffer "*scratch*"
     And I am in the project "otherproject"
     And I visit the file "other.el"
     And I save the buffer
-    And I press "C-c w"
+    And I press "C-z C-w"
     And I start an action chain
-    And I press "C-c c"
+    And I press "C-z C-p"
     And I type "wacsproject"
     And I execute the action chain
     Then I should be in buffer "main.el"

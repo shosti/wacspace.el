@@ -23,14 +23,14 @@ Feature: Use aliases to organize similar modes
 
    Scenario: Without the alias
      When I am in buffer "*js*" in javascript-mode
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 2 windows
      And the 2nd window should be in buffer "*eshell*"
 
    Scenario: With the alias
      When I am in buffer "*js*" in javascript-mode
      And I turn on rinari-minor-mode
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 3 windows
      And the 2nd window should be in buffer "*rails console*"
      And the 3rd window should be in buffer "*eshell*"
@@ -45,6 +45,6 @@ Feature: Use aliases to organize similar modes
      """
      When I am in buffer "*js*" in javascript-mode
      And I turn on rinari-minor-mode
-     And I press "C-c w"
+     And I press "C-z C-w"
      Then there should be 2 windows
      And the 2nd window should be in buffer "*eshell*"

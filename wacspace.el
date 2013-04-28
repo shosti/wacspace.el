@@ -301,13 +301,13 @@ for the default configuration. Then give up. Whew."
                    (wacs--alist-get :default wacs--config))
 
              (-when-let (default-cond-config
-                         (wacs--get-cond-config-from-alist
-                          global-default-config))
+                          (wacs--get-cond-config-from-alist
+                           global-default-config))
                (cl-return-from find-config default-cond-config))
 
              (-when-let (default-config
-                         (wacs--get-default-config-from-alist
-                          global-default-config))
+                          (wacs--get-default-config-from-alist
+                           global-default-config))
                (cl-return-from find-config default-config)))))
       (wacs--resolve-prefix config arg))))
 
@@ -558,7 +558,7 @@ configuration."
           (message "wacspace restored")
           t)))))
 
-(defun wacspace-switch ()
+(defun wacspace-switch-project ()
   "Quickly switch between open projects."
   (interactive)
   (if (or (null wacs--open-projects)
@@ -603,6 +603,31 @@ current buffer."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Standard configuration ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;###autoload
+(defun wacs-set-up-prefix ()
+  (define-prefix-command 'wacs-prefix-map)
+  (define-key 'wacs-prefix-map (kbd "C-w") 'wacspace)
+  (define-key 'wacs-prefix-map (kbd "w") 'wacspace)
+  (define-key 'wacs-prefix-map (kbd "C-p") 'wacspace-switch-project)
+  (define-key 'wacs-prefix-map (kbd "p") 'wacspace-switch-project)
+  (define-key 'wacs-prefix-map (kbd "C-s") 'wacspace-save)
+  (define-key 'wacs-prefix-map (kbd "s") 'wacspace-save)
+  (--dotimes 9
+    (let* ((n (+ it 1))
+           (cmd
+            `(lambda ()
+               (interactive)
+               (wacspace ,n))))
+      (define-key wacs-prefix-map (kbd (concat "C-"
+                                               (number-to-string n)))
+        cmd)
+      (define-key wacs-prefix-map (kbd (number-to-string n)) cmd))))
+
+;;;###autoload
+(defun wacs-set-up-keys ()
+  (wacs-set-up-prefix)
+  (global-set-key (kbd "C-z") 'wacs-prefix-map))
 
 (defwinconf 1win)
 
