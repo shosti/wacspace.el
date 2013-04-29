@@ -76,6 +76,11 @@ current directory is the base directory.")
 Major modes where wacspace will scroll to the end of the
 buffer after restoring or setting up.")
 
+(defvar wacs-prefix-map
+  "The prefix keymap for wacspace commands.
+
+Bound to C-z by default.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Useful helper functions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -134,14 +139,8 @@ results, use within `defwacspace' configurations."
 ;; Private configuration ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;Because they're used within autoloaded macros, wacs--config and
-;;wacs--frame-fns need to be autoloaded
-
-;;;###autoload
-(defvar wacs--config nil
-  "The wacspace configuration alist.
-
-Should not be altered manually—use `defwacspace' instead.")
+;;Because it's used within autoloaded macros, wacs--frame-fns need to
+;;be autoloaded
 
 (defvar wacs--winconfs nil
   "The wacspace winconf alist.
@@ -170,9 +169,6 @@ instead.")
 
 (defvar wacs--open-projects nil
   "Alist with configuration for currently open projects.")
-
-(defvar wacs--aliases nil
-  "Alist for wacspace aliases.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions and macros ;;
@@ -269,8 +265,7 @@ Appends the default configuration."
 (defun wacs--get-aliased-config (entry)
   "Get the configuration pointed to by alias entry ENTRY."
   (wacs--alist-get (or (cdr entry) :default)
-                   (wacs--alist-get (car entry)
-                                    wacs--config)))
+                   (get (car entry) 'wacs-config)))
 
 (cl-defun wacs--get-config (&optional arg)
   "Get the config with prefix ARG associated with the current buffer.
@@ -285,13 +280,13 @@ for the default configuration. Then give up. Whew."
   (let (mode-config mode-alias global-default-config)
     (let ((config
            (cl-block find-config
-             (setq mode-config (wacs--alist-get major-mode wacs--config))
+             (setq mode-config (get major-mode 'wacs-config))
 
              (-when-let (cond-config (wacs--get-cond-config-from-alist
                                       mode-config))
                (cl-return-from find-config cond-config))
 
-             (setq mode-alias (wacs--alist-get major-mode wacs--aliases))
+             (setq mode-alias (get major-mode 'wacs-alias))
 
              (-when-let (cond-alias (wacs--get-cond-config-from-alist
                                      mode-alias))
@@ -310,7 +305,7 @@ for the default configuration. Then give up. Whew."
                  (wacs--get-aliased-config mode-default-alias)))
 
              (setq global-default-config
-                   (wacs--alist-get :default wacs--config))
+                   (get :default 'wacs-config))
 
              (-when-let (default-cond-config
                           (wacs--get-cond-config-from-alist
@@ -324,7 +319,7 @@ for the default configuration. Then give up. Whew."
       (wacs--resolve-prefix config arg))))
 
 (defun wacs--process-config (config)
-  "Process CONFIG for inclusion in `wacs--config'."
+  "Process CONFIG for inclusion in `wacs-config'."
   (let ((default-conf (-map 'wacs--list->dotted-pair
                             (wacs--alist-get :default config))))
     (unless default-conf
@@ -344,16 +339,14 @@ for the default configuration. Then give up. Whew."
 ;;;###autoload
 (cl-defmacro wacs--push-config ((mode &optional aux-cond)
                                 entry
-                                config-alist)
+                                propname)
   "Push config ENTRY for MODE and AUX-COND onto CONFIG-ALIST."
   (let ((aux-cond-key (or aux-cond :default))
-        (mode-list-pair-var (cl-gensym)))
-    `(let ((,mode-list-pair-var (assq ',mode ,config-alist)))
-       (if ,mode-list-pair-var
-           (push (cons ',aux-cond-key ,entry)
-                 (cdr ,mode-list-pair-var))
-         (push (cons ',mode (list (cons ',aux-cond-key ,entry)))
-               ,config-alist))
+        (mode-list-var (cl-gensym)))
+    `(let ((,mode-list-var (get ',mode ,propname)))
+       (put ',mode ,propname
+            (cons (cons ',aux-cond-key ,entry)
+                  ,mode-list-var))
        t)))
 
 ;;;###autoload
@@ -366,7 +359,7 @@ documentation of configuration options, see the README."
   (let ((entry (wacs--process-config configuration)))
     `(wacs--push-config (,mode ,aux-cond)
                         ',entry
-                        wacs--config)))
+                        'wacs-config)))
 
 ;;;###autoload
 (cl-defmacro defwacsalias ((mode &optional aux-cond)
@@ -379,7 +372,7 @@ OTHER-AUX-COND."
   (let ((entry `'(,other-mode . ,other-aux-cond)))
     `(wacs--push-config (,mode ,aux-cond)
                         ,entry
-                        wacs--aliases)))
+                        'wacs-alias)))
 
 ;;;###autoload
 (cl-defmacro defwinconf (conf-name &body body)
@@ -619,12 +612,12 @@ current buffer."
 ;;;###autoload
 (defun wacs-set-up-prefix ()
   (define-prefix-command 'wacs-prefix-map)
-  (define-key 'wacs-prefix-map (kbd "C-w") 'wacspace)
-  (define-key 'wacs-prefix-map (kbd "w") 'wacspace)
-  (define-key 'wacs-prefix-map (kbd "C-p") 'wacspace-switch-project)
-  (define-key 'wacs-prefix-map (kbd "p") 'wacspace-switch-project)
-  (define-key 'wacs-prefix-map (kbd "C-s") 'wacspace-save)
-  (define-key 'wacs-prefix-map (kbd "s") 'wacspace-save)
+  (define-key wacs-prefix-map (kbd "C-w") 'wacspace)
+  (define-key wacs-prefix-map (kbd "w") 'wacspace)
+  (define-key wacs-prefix-map (kbd "C-p") 'wacspace-switch-project)
+  (define-key wacs-prefix-map (kbd "p") 'wacspace-switch-project)
+  (define-key wacs-prefix-map (kbd "C-s") 'wacspace-save)
+  (define-key wacs-prefix-map (kbd "s") 'wacspace-save)
   (--dotimes 9
     (let* ((n (+ it 1))
            (cmd

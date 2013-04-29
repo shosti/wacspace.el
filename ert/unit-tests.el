@@ -68,37 +68,32 @@
                    '("buffer1" . 7)))))
 
 (ert-deftest wacs-aliases ()
-  (let ((wacs--config nil)
-        (wacs--aliases nil))
+  (defwacsalias (js-mode rinari-minor-mode)
+    (ruby-mode rinari-minor-mode))
+  (should (equal (wacs--alist-get 'rinari-minor-mode
+                                  (get 'js-mode 'wacs-alias))
+                 '(ruby-mode . rinari-minor-mode)))
 
-    (defwacsalias (js-mode rinari-minor-mode)
-      (ruby-mode rinari-minor-mode))
-    (should (equal (wacs--alist-get 'rinari-minor-mode
-                                    (wacs--alist-get 'js-mode
-                                                     wacs--aliases))
-                   '(ruby-mode . rinari-minor-mode)))
+  (defwacsalias (js-mode)
+    (emacs-lisp-mode))
+  (should (equal (wacs--alist-get :default
+                                  (get 'js-mode 'wacs-alias))
+                 '(emacs-lisp-mode)))
 
-    (defwacsalias (js-mode)
-      (emacs-lisp-mode))
-    (should (equal (wacs--alist-get :default
-                                    (wacs--alist-get 'js-mode
-                                                     wacs--aliases))
-                   '(emacs-lisp-mode)))
+  (defwacspace (ruby-mode rinari-minor-mode)
+    (:default
+     (:winconf 3winv)))
 
-    (defwacspace (ruby-mode rinari-minor-mode)
-      (:default
-       (:winconf 3winv)))
+  (let ((major-mode 'js-mode)
+        (rinari-minor-mode t))
+    (should (equal (wacs--get-config)
+                   '((:winconf . 3winv)))))
 
-    (let ((major-mode 'js-mode)
-          (rinari-minor-mode t))
-      (should (equal (wacs--get-config)
-                     '((:winconf . 3winv)))))
+  (defwacspace (js-mode rinari-minor-mode)
+    (:default
+     (:winconf 2winh)))
 
-    (defwacspace (js-mode rinari-minor-mode)
-      (:default
-       (:winconf 2winh)))
-
-    (let ((major-mode 'js-mode)
-          (rinari-minor-mode t))
-      (should (equal (wacs--get-config)
-                     '((:winconf . 2winh)))))))
+  (let ((major-mode 'js-mode)
+        (rinari-minor-mode t))
+    (should (equal (wacs--get-config)
+                   '((:winconf . 2winh))))))
