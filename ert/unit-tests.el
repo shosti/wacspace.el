@@ -97,3 +97,26 @@
         (rinari-minor-mode t))
     (should (equal (wacs--get-config)
                    '((:winconf . 2winh))))))
+
+(ert-deftest multiple-conditions ()
+  (defwacspace (octave-mode foo)
+    (:default
+     (:winconf 1win)))
+
+  (defwacspace (octave-mode bar)
+    (:default
+     (:winconf 2winv)))
+
+  (setq foo t)
+  (let ((major-mode 'octave-mode))
+    (should (equal (wacs--get-config)
+                   '((:winconf . 1win)))))
+  (setq bar t)
+  (let ((major-mode 'octave-mode))
+    (should (equal (wacs--get-config)
+                   '((:winconf . 2winv)))))
+
+  (setq bar nil)
+  (let ((major-mode 'octave-mode))
+    (should (equal (wacs--get-config)
+                   '((:winconf . 1win))))))

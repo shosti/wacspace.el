@@ -46,7 +46,6 @@
 
 (Before
  (setq base-dir (concat (make-temp-file "wacs" t)))
- (setq foo nil)
  (setq wacs--saved-workspaces (make-hash-table :test 'equal))
  (jump-to-register :pre-ecukes))
 

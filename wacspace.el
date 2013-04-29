@@ -88,7 +88,7 @@ Bound to C-z by default.")
 (defun wacs-project-dir ()
   "Return the project directory of `wacs-main-buffer'.
 
-Looks for wacs-project-base-file. If not found, defaults to the
+Looks for `wacs-project-base-file'. If not found, defaults to the
 current directory."
   (-if-let (dir (buffer-file-name wacs-main-buffer))
     (let ((fname (file-name-directory dir)))
@@ -241,7 +241,7 @@ If KEY already exists as a key in ALIST, delete the entry."
 ;;;;;;;;;;;;;;;;;;;
 
 (defun wacs--resolve-prefix (config arg)
-  "Resolve prefix ARG for alist CONFIG.
+  "Return the final configuration from CONFIG with prefix ARG.
 
 Appends the default configuration."
   (let ((arg-key (if arg
@@ -337,17 +337,15 @@ for the default configuration. Then give up. Whew."
      config)))
 
 ;;;###autoload
-(cl-defmacro wacs--push-config ((mode &optional aux-cond)
-                                entry
-                                propname)
+(defun wacs--push-config (mode aux-cond entry propname)
   "Push config ENTRY for MODE and AUX-COND onto CONFIG-ALIST."
   (let ((aux-cond-key (or aux-cond :default))
-        (mode-list-var (cl-gensym)))
-    `(let ((,mode-list-var (get ',mode ,propname)))
-       (put ',mode ,propname
-            (cons (cons ',aux-cond-key ,entry)
-                  ,mode-list-var))
-       t)))
+        (mode-list (get mode propname)))
+    (put mode propname
+         (cons (cons aux-cond-key entry)
+               (cl-delete-if (lambda (existing-pair)
+                               (equal (car existing-pair) aux-cond-key))
+                             mode-list)))))
 
 ;;;###autoload
 (cl-defmacro defwacspace ((mode &optional aux-cond) &body configuration)
@@ -357,9 +355,7 @@ The auxiliary condition can be a variable (such as a minor mode),
 an inline lambda, a (:fn FN) pair, or a (:var VAR) pair. For full
 documentation of configuration options, see the README."
   (let ((entry (wacs--process-config configuration)))
-    `(wacs--push-config (,mode ,aux-cond)
-                        ',entry
-                        'wacs-config)))
+    `(wacs--push-config ',mode ',aux-cond ',entry 'wacs-config)))
 
 ;;;###autoload
 (cl-defmacro defwacsalias ((mode &optional aux-cond)
@@ -369,10 +365,8 @@ documentation of configuration options, see the README."
 When wacspace is invoked with MODE and AUX-COND, it will run the
 same way as it would for buffers in OTHER-MODE and
 OTHER-AUX-COND."
-  (let ((entry `'(,other-mode . ,other-aux-cond)))
-    `(wacs--push-config (,mode ,aux-cond)
-                        ,entry
-                        'wacs-alias)))
+  (let ((entry `(,other-mode . ,other-aux-cond)))
+    `(wacs--push-config ',mode ',aux-cond ',entry 'wacs-alias)))
 
 ;;;###autoload
 (cl-defmacro defwinconf (conf-name &body body)
@@ -463,7 +457,7 @@ MAIN-WINDOW is the window from which `wacspace' was called."
   (wacs--switch-to-window-with-buffer wacs-main-buffer))
 
 (defun wacs--set-up-workspace (arg config)
-  "Given CONFIG, set up the workspace."
+  "Given ARG and CONFIG, set up the workspace."
   (let ((wacs-project-base-file
          (or (wacs--alist-get :base-file config)
              wacs-project-base-file
@@ -485,6 +479,7 @@ MAIN-WINDOW is the window from which `wacspace' was called."
     (wacspace-save arg)))
 
 (defun wacs--update-open-projects (buffer arg)
+  "Update `wacs--open-projects' with BUFFER and ARG."
   (let ((project-name (wacs-project-name)))
     (wacs--alist-put project-name
                      (cons buffer arg)
@@ -508,7 +503,7 @@ workspace."
                (config (wacs--get-config arg)))
       (wacs--set-up-workspace arg config)
       (error
-       "No wacspace configuration available for the current mode.")))
+       "No wacspace configuration available for the current mode")))
   (wacs--update-open-projects (current-buffer) arg))
 
 ;;;###autoload
@@ -611,6 +606,7 @@ current buffer."
 
 ;;;###autoload
 (defun wacs-set-up-prefix ()
+  "Set up variable `wacs-prefix-map' with wacspace commands."
   (define-prefix-command 'wacs-prefix-map)
   (define-key wacs-prefix-map (kbd "C-w") 'wacspace)
   (define-key wacs-prefix-map (kbd "w") 'wacspace)
@@ -631,6 +627,7 @@ current buffer."
 
 ;;;###autoload
 (defun wacs-set-up-keys ()
+  "Sets up C-z as a prefix with wacspace commands."
   (wacs-set-up-prefix)
   (global-set-key (kbd "C-z") 'wacs-prefix-map))
 

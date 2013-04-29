@@ -91,22 +91,6 @@ Feature: Set up workspace
      And I should be in buffer "*main*"
      And the 2nd window should be in buffer "*ruby*"
 
-   Scenario: :var syntax for auxiliary condition
-     When I load the following:
-     """
-     (setq foo t)
-
-     (defwacspace (ruby-mode (:var foo))
-       (:default
-        (:winconf 2winv)
-        (:aux1 (:buffer "*baz*"))))
-     """
-     And I am in buffer "*main*" in ruby-mode
-     And I press "C-z C-w"
-     Then there should be 2 windows
-     And I should be in buffer "*main*"
-     And the 2nd window should be in buffer "*baz*"
-
    Scenario: :fn syntax for auxiliary condition
      When I load the following:
      """
@@ -127,6 +111,22 @@ Feature: Set up workspace
      And I press "C-z C-w"
      Then there should be 2 windows
      And the 2nd window should be in buffer "*ruby*"
+
+   Scenario: :var syntax for auxiliary condition
+     When I load the following:
+     """
+     (setq foo t)
+
+     (defwacspace (ruby-mode (:var foo))
+       (:default
+        (:winconf 2winv)
+        (:aux1 (:buffer "*baz*"))))
+     """
+     And I am in buffer "*main*" in ruby-mode
+     And I press "C-z C-w"
+     Then there should be 2 windows
+     And I should be in buffer "*main*"
+     And the 2nd window should be in buffer "*baz*"
 
    Scenario: Default configuration
      When I am in buffer "*py*" in python-mode
