@@ -8,6 +8,13 @@
     (let ((v (vconcat [?\C-u 1 ?\M-x] (string-to-vector mode))))
       (execute-kbd-macro v))))
 
+(And "^I am visiting the project file \"\\([^\"]+\\)\" in \\(.+\\)$"
+       (lambda (fname mode)
+         (find-file (concat project-dir fname))
+         (save-buffer)
+         (let ((v (vconcat [?\C-u 1 ?\M-x] (string-to-vector mode))))
+      (execute-kbd-macro v))))
+
 (And "^I close all the other windows$"
   (lambda ()
     (delete-other-windows)))
@@ -59,10 +66,6 @@
   (lambda (project-name)
     (setq project-dir (concat base-dir "/" project-name "/"))
     (make-directory project-dir)))
-
-(And "^I visit the file \"\\([^\"]+\\)\"$"
-  (lambda (fname)
-    (find-file (concat project-dir fname))))
 
 (And "^I switch to the next window$"
   (lambda ()

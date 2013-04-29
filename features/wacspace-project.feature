@@ -16,9 +16,7 @@ Feature: Use wacspace to manage projects
 
     (setq wacs-project-base-file nil)
     """
-    And I visit the file "main.el"
-    And I save the buffer
-    And I turn on emacs-lisp-mode
+    And I am visiting the project file "main.el" in emacs-lisp-mode
     And I press "C-z C-w"
     And I switch to the next window
     Then I should be in buffer "*eshell*<wacsproject>"
@@ -36,14 +34,12 @@ Feature: Use wacspace to manage projects
     """
     And I create the directory "subdir"
     And I create the directory ".git"
-    And I visit the file "subdir/main.el"
-    And I save the buffer
-    And I turn on emacs-lisp-mode
+    And I am visiting the project file "subdir/main.el" in emacs-lisp-mode
     And I press "C-z C-w"
     And I switch to the next window
     Then I should be in buffer "*eshell*<wacsproject>"
     And the current directory should be the base directory
-    When I visit the file "other.el"
+    When I am visiting the project file "other.el" in emacs-lisp-mode
     And I press "C-z C-w"
     And I switch to the next window
     Then I should be in buffer "*eshell*<wacsproject>"
@@ -60,9 +56,7 @@ Feature: Use wacspace to manage projects
     """
     And I create the directory "subdir"
     And I create the directory ".project"
-    And I visit the file "subdir/main.el"
-    And I save the buffer
-    And I turn on emacs-lisp-mode
+    And I am visiting the project file "subdir/main.el" in emacs-lisp-mode
     And I press "C-z C-w"
     And I switch to the next window
     Then I should be in buffer "*shell*<wacsproject>"
@@ -79,9 +73,7 @@ Feature: Use wacspace to manage projects
        (:winconf 2winv)
        (:aux1 (:cmd wacs-eshell))))
     """
-    And I visit the file "main.el"
-    And I save the buffer
-    And I turn on emacs-lisp-mode
+    And I am visiting the project file "main.el" in emacs-lisp-mode
     And I press "C-z C-w"
     Then the 2nd window should be in buffer "*eshell*<coolproj>"
 
@@ -93,12 +85,10 @@ Feature: Use wacspace to manage projects
        (:winconf 2winv)
        (:aux1 (:cmd wacs-eshell))))
     """
-    And I visit the file "main.el"
-    And I save the buffer
-    And I turn on emacs-lisp-mode
+    And I am visiting the project file "main.el" in emacs-lisp-mode
     And I press "C-z C-w"
     And I am in the project "otherproject"
-    And I visit the file "other.el"
+    And I am visiting the project file "other.el" in emacs-lisp-mode
     And I press "C-z C-w"
     Then the 2nd window should be in buffer "*eshell*<otherproject>"
     When I start an action chain
@@ -118,16 +108,13 @@ Feature: Use wacspace to manage projects
       (:1
        (:aux1 (:buffer "*scratch*"))))
     """
-    And I visit the file "main.el"
-    And I save the buffer
-    And I turn on emacs-lisp-mode
+    And I am visiting the project file "main.el" in emacs-lisp-mode
     And I press "C-z C-1"
     And I press "C-z C-w"
     And I press "C-z C-1"
     Then the 2nd window should be in buffer "*scratch*"
     And I am in the project "otherproject"
-    And I visit the file "other.el"
-    And I save the buffer
+    And I am visiting the project file "other.el" in emacs-lisp-mode
     And I press "C-z C-w"
     And I start an action chain
     And I press "C-z C-p"
