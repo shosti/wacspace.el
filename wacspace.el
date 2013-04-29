@@ -105,6 +105,18 @@ current directory."
       (last)
       (car))))
 
+(defun wacs-make-comint (name program &optional startfile &rest switches)
+  "Make a project-specific comint buffer.
+
+Acts as a drop-in replacement for `make-comint'. For best
+results, use within `defwacspace' configurations."
+  (interactive)
+  (let ((default-directory (wacs-project-dir))
+        (buffer-name (concat "*" name "*<" (wacs-project-name) ">")))
+    (apply 'make-comint-in-buffer
+           (append (list name buffer-name program startfile) switches))
+    (make-comint-in-buffer name buffer-name program startfile switches)))
+
 (defun wacs-eshell ()
   "Open an eshell in the main project directory."
   (let ((default-directory (wacs-project-dir))
