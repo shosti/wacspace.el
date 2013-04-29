@@ -9,10 +9,10 @@
       (execute-kbd-macro v))))
 
 (And "^I am visiting the project file \"\\([^\"]+\\)\" in \\(.+\\)$"
-       (lambda (fname mode)
-         (find-file (concat project-dir fname))
-         (save-buffer)
-         (let ((v (vconcat [?\C-u 1 ?\M-x] (string-to-vector mode))))
+  (lambda (fname mode)
+    (find-file (concat project-dir fname))
+    (save-buffer)
+    (let ((v (vconcat [?\C-u 1 ?\M-x] (string-to-vector mode))))
       (execute-kbd-macro v))))
 
 (And "^I close all the other windows$"
@@ -99,8 +99,16 @@
             "Mode should be %s but is %s" major-mode mode-string)))
 
 (And "^the value of \\([-a-z]+\\) should be \"\\([^\"]+\\)\"$"
-       (lambda (symbol-name val)
-         (let ((symbol-val (symbol-value (intern symbol-name))))
-           (assert (equal symbol-val val) nil
-                    "Symbol %s should equal %s but is %s"
-                    symbol-name val symbol-val))))
+  (lambda (symbol-name val)
+    (let ((symbol-val (symbol-value (intern symbol-name))))
+      (assert (equal symbol-val val) nil
+              "Symbol %s should equal %s but is %s"
+              symbol-name val symbol-val))))
+
+(Then "^the numeric value of \\([-a-z]+\\) should be \\([0-9]+\\)$"
+  (lambda (symbol-name val-str)
+    (let ((symbol-val (symbol-value (intern symbol-name)))
+          (val (string-to-number val-str)))
+      (assert (equal symbol-val val) nil
+              "Symbol %s should equal %s but is %s"
+              symbol-name val symbol-val))))

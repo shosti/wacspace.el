@@ -170,6 +170,11 @@ instead.")
 (defvar wacs--open-projects nil
   "Alist with configuration for currently open projects.")
 
+(defvar wacs--before-switch-fns (make-hash-table :test 'equal)
+  "Hash table of functions to call before switching to projects.
+
+Keys are project names, values are functions.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions and macros ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -281,37 +286,29 @@ for the default configuration. Then give up. Whew."
     (let ((config
            (cl-block find-config
              (setq mode-config (get major-mode 'wacs-config))
-
              (-when-let (cond-config (wacs--get-cond-config-from-alist
                                       mode-config))
                (cl-return-from find-config cond-config))
-
              (setq mode-alias (get major-mode 'wacs-alias))
-
              (-when-let (cond-alias (wacs--get-cond-config-from-alist
                                      mode-alias))
                (cl-return-from find-config
                  (wacs--get-aliased-config cond-alias)))
-
              (-when-let (mode-default-config
                          (wacs--get-default-config-from-alist
                           mode-config))
                (cl-return-from find-config mode-default-config))
-
              (-when-let (mode-default-alias
                          (wacs--get-default-config-from-alist
                           mode-alias))
                (cl-return-from find-config
                  (wacs--get-aliased-config mode-default-alias)))
-
              (setq global-default-config
                    (get :default 'wacs-config))
-
              (-when-let (default-cond-config
                           (wacs--get-cond-config-from-alist
                            global-default-config))
                (cl-return-from find-config default-cond-config))
-
              (-when-let (default-config
                           (wacs--get-default-config-from-alist
                            global-default-config))
@@ -462,10 +459,17 @@ MAIN-WINDOW is the window from which `wacspace' was called."
          (or (wacs--alist-get :base-file config)
              wacs-project-base-file
              (file-name-nondirectory (buffer-file-name))))
-        (wacs--project-name-fn (wacs--alist-get :project-name-fn config)))
+        (wacs--project-name-fn (wacs--alist-get :project-name-fn
+                                                config)))
     (wacs--with-property (before)
       (save-window-excursion
         (funcall before)))
+    (wacs--with-property (before-switch)
+      (puthash (wacs-project-name)
+               before-switch
+               wacs--before-switch-fns)
+      (save-window-excursion
+        (funcall before-switch)))
     (wacs--with-property (frame)
       (wacs--set-frame frame))
     (let ((main-window
@@ -571,6 +575,9 @@ configuration."
            (config (wacs--alist-get project wacs--open-projects))
            (buffer (car config))
            (last-prefix (cdr config)))
+      (-when-let (before-switch (gethash project
+                                         wacs--before-switch-fns))
+        (funcall before-switch))
       (set-buffer buffer)
       (wacspace last-prefix))))
 

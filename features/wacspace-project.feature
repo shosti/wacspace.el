@@ -122,3 +122,32 @@ Feature: Use wacspace to manage projects
     And I execute the action chain
     Then I should be in buffer "main.el"
     And the 2nd window should be in buffer "*scratch*"
+
+  Scenario: Using the :before-switch option
+    When I load the following:
+    """
+    (setq switch-count 0)
+
+    (defwacspace (octave-mode)
+      (:before-switch (lambda () (incf switch-count)))
+      (:default
+       (:winconf 2winv)
+       (:aux1 (:cmd wacs-eshell))))
+     """
+     And I am visiting the project file "main.octave" in octave-mode
+     And I press "C-z C-w"
+     Then the numeric value of switch-count should be 1
+     When I am in the project "otherproject"
+     And I am visiting the project file "other.octave" in octave-mode
+     And I press "C-z C-w"
+     Then the numeric value of switch-count should be 2
+     When I start an action chain
+     And I press "C-z C-p"
+     And I type "wacsproject"
+     And I execute the action chain
+     Then the numeric value of switch-count should be 3
+     When I start an action chain
+     And I press "C-z C-p"
+     And I type "otherproject"
+     And I execute the action chain
+     Then the numeric value of switch-count should be 4
