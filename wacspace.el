@@ -37,7 +37,6 @@
 
 (require 'cl-lib)
 (require 'dash)
-(require 'eshell)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Configuration options ;;
