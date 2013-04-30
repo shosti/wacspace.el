@@ -555,7 +555,7 @@ restored."
 (defun wacspace-restore (&optional arg)
   "Restore a window configuration saved with prefix key ARG.
 
-Usually, you should call wacspace directly instead of this
+Usually, you should call `wacspace' directly instead of this
 function unless you want to skip the possibility of
 configuration."
   (let ((buffer (current-buffer))
