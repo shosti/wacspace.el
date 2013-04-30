@@ -245,16 +245,18 @@ If KEY already exists as a key in ALIST, delete the entry."
 ;; Configuration ;;
 ;;;;;;;;;;;;;;;;;;;
 
-(defun wacs--resolve-prefix (config arg)
-  "Return the final configuration from CONFIG with prefix ARG.
-
-Appends the default configuration."
+(defun wacs--resolve-prefix (config arg &optional default)
+  "Return the final configuration from CONFIG with prefix ARG. "
   (let ((arg-key (if arg
                      (intern (concat ":" (number-to-string arg)))
                    :default)))
     (append (--filter (not (memq (car it) wacs--numeric-confs))
                       config)
-            (wacs--alist-get arg-key config))))
+            (wacs--alist-get arg-key config)
+            (wacs--alist-get arg-key
+                             (wacs--alist-get :default
+                                              (get :default
+                                                   'wacs-config))))))
 
 (defun wacs--get-cond-config-from-alist (config-alist)
   "Get the first first configuration with a satisfied auxiliary condition from CONFIG-ALIST."

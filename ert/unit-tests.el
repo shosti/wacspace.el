@@ -68,6 +68,8 @@
                    '("buffer1" . 7)))))
 
 (ert-deftest wacs-aliases ()
+  (prepare-tests)
+
   (defwacsalias (js-mode rinari-minor-mode)
     (ruby-mode rinari-minor-mode))
   (should (equal (wacs--alist-get 'rinari-minor-mode
@@ -99,6 +101,8 @@
                    '((:winconf . 2winh))))))
 
 (ert-deftest multiple-conditions ()
+  (prepare-tests)
+
   (defwacspace (octave-mode foo)
     (:default
      (:winconf 1win)))
@@ -120,3 +124,36 @@
   (let ((major-mode 'octave-mode))
     (should (equal (wacs--get-config)
                    '((:winconf . 1win))))))
+
+(ert-deftest inherit-from-default ()
+  (prepare-tests)
+
+  (defwacspace (:default)
+    (:default
+     (:winconf 3winv)
+     (:frame full))
+    (:1
+     (:winconf 2winh)))
+
+  (defwacspace (text-mode)
+    (:default
+     (:winconf 2winv))
+    (:1
+     (:winconf 1win)))
+
+  (let ((major-mode 'text-mode))
+    (should (equal (wacs--get-config)
+                   '((:winconf . 2winv)
+                     (:winconf . 3winv)
+                     (:frame . full))))
+    (should (equal (wacs--get-config 1)
+                   '((:winconf . 1win)
+                     (:winconf . 2winv)
+                     (:winconf . 2winh)
+                     (:winconf . 3winv)
+                     (:frame . full))))))
+
+(defun prepare-tests ()
+  (--each '(ruby-mode text-mode octave-mode js-mode :default)
+    (put it 'wacs-config nil)
+    (put it 'wacs-alias nil)))

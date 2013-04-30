@@ -143,3 +143,16 @@ Feature: Set up workspace
      And I should be in buffer "*html*"
      And the 2nd window should be in buffer "*eshell*"
      And the 3rd window should be in buffer "*shell*"
+
+  Scenario: Inherit from the default wacspace
+    When I load the following:
+    """
+    (defwacspace (octave-mode)
+      (:default
+       (:aux1 (:buffer "*scratch*"))))
+    """
+    And I am in buffer "*md*" in octave-mode
+    And I press "C-z C-w"
+    Then there should be 2 windows
+    And I should be in buffer "*md*"
+    And the 2nd window should be in buffer "*scratch*"

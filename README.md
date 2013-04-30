@@ -159,6 +159,11 @@ wacspace associated with a major mode is found:
  (:aux1 (:buffer "*rails console*"))
 ```
 
+The `:default` wacspace (without a minor mode condition) is special:
+all wacspaces inherit from it. So if you put a useful base
+configuration in your `:default`, you can save a lot of configuration
+in all your other modes!
+
 Another useful option is to specify wacspace aliases:
 
 ```cl
