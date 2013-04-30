@@ -168,7 +168,8 @@ Another useful option is to specify wacspace aliases:
 
 As you might expect, the above example means that when you're in a
 buffer in `js-mode` and `rinari-minor-mode`, `wacspace` will run as if
-you're in `ruby-mode` and `rinari-minor-mode`.
+you're in `ruby-mode` and `rinari-minor-mode`. You can also alias
+multiple modes to a single wacspace using the `defwacsaliases` macro.
 
 One thing to be aware of is the specific order in which `wacspace`
 will look for configurations:

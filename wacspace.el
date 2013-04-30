@@ -238,7 +238,7 @@ If KEY already exists as a key in ALIST, delete the entry."
 (put 'wacs--with-property 'lisp-indent-function 1)
 (font-lock-add-keywords
  'emacs-lisp-mode
- '(("\\<def\\(wacspace\\|winconf\\|wacsalias\\)\\>" .
+ '(("\\<def\\(wacspace\\|winconf\\|wacsalias\\(es\\)?\\)\\>" .
     'font-lock-keyword-face)))
 
 ;;;;;;;;;;;;;;;;;;;
@@ -365,6 +365,19 @@ same way as it would for buffers in OTHER-MODE and
 OTHER-AUX-COND."
   (let ((entry `(,other-mode . ,other-aux-cond)))
     `(wacs--push-config ',mode ',aux-cond ',entry 'wacs-alias)))
+
+;;;###autoload
+(cl-defmacro defwacsaliases ((&rest mode-pairs)
+                             (other-mode &optional other-aux-cond))
+  "Define multiple aliases for a mode.
+
+MODE-PAIRS should be a list of (MODE AUX-COND) pairs. OTHER-MODE
+and OTHER-AUX-COND are the mode and condition to alias to."
+  (cons 'progn
+        (append
+         (-map (lambda (pair) `(defwacsalias ,pair
+                            (,other-mode ,other-aux-cond)))
+               mode-pairs))))
 
 ;;;###autoload
 (cl-defmacro defwinconf (conf-name &body body)
