@@ -170,7 +170,7 @@ instead.")
 (defvar wacs--open-projects nil
   "Alist with configuration for currently open projects.")
 
-(defvar wacs--before-switch-fns (make-hash-table :test 'equal)
+(defvar wacs--after-switch-fns (make-hash-table :test 'equal)
   "Hash table of functions to call before switching to projects.
 
 Keys are project names, values are functions.")
@@ -342,7 +342,8 @@ for the default configuration. Then give up. Whew."
          (cons (cons aux-cond-key entry)
                (cl-delete-if (lambda (existing-pair)
                                (equal (car existing-pair) aux-cond-key))
-                             mode-list)))))
+                             mode-list)))
+    t))
 
 ;;;###autoload
 (cl-defmacro defwacspace ((mode &optional aux-cond) &body configuration)
@@ -464,13 +465,7 @@ MAIN-WINDOW is the window from which `wacspace' was called."
     (wacs--with-property (before)
       (save-window-excursion
         (funcall before)))
-    (wacs--with-property (before-switch)
-      (puthash (wacs-project-name)
-               before-switch
-               wacs--before-switch-fns)
-      (save-window-excursion
-        (funcall before-switch)))
-    (wacs--with-property (frame)
+        (wacs--with-property (frame)
       (wacs--set-frame frame))
     (let ((main-window
            (wacs--with-property (winconf)
@@ -479,6 +474,12 @@ MAIN-WINDOW is the window from which `wacspace' was called."
     (wacs--with-property (after)
       (save-window-excursion
         (funcall after)))
+    (wacs--with-property (after-switch)
+      (puthash (wacs-project-name)
+               after-switch
+               wacs--after-switch-fns)
+      (save-window-excursion
+        (funcall after-switch)))
     (message "wacspace configured")
     (wacspace-save arg)))
 
@@ -575,11 +576,11 @@ configuration."
            (config (wacs--alist-get project wacs--open-projects))
            (buffer (car config))
            (last-prefix (cdr config)))
-      (-when-let (before-switch (gethash project
-                                         wacs--before-switch-fns))
-        (funcall before-switch))
       (set-buffer buffer)
-      (wacspace last-prefix))))
+      (wacspace last-prefix)
+      (-when-let (after-switch (gethash project
+                                         wacs--after-switch-fns))
+        (funcall after-switch)))))
 
 (defun wacs-clear-saved (&optional buffer)
   "Clear saved workspaces associated with BUFFER.

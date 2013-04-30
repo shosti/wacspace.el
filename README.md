@@ -86,7 +86,7 @@ started:
 ```cl
 (defwacspace (ruby-mode (:var rinari-minor-mode))
   (:before rinari-console)
-  (:before-switch rbenv-use-corresponding)
+  (:after-switch rbenv-use-corresponding)
   (:default
    (:winconf 3winv)
    (:aux1 (:buffer "*rails console*"))
@@ -115,7 +115,7 @@ no need for quoting).
 The configuration currently supports the following options:
 
 - `:before` A function to run before setting up the workspace.
-- `:before-switch` A function to run before setting up the workspace
+- `:after-switch` A function to run after setting up the workspace
   and every time you switch to a project with that configuration.
 - `:default` The default configuration.
 - `:[1-9]` The configuration to use with the corresponding prefix.

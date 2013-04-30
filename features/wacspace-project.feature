@@ -129,7 +129,7 @@ Feature: Use wacspace to manage projects
     (setq switch-count 0)
 
     (defwacspace (octave-mode)
-      (:before-switch (lambda () (incf switch-count)))
+      (:after-switch (lambda () (incf switch-count)))
       (:default
        (:winconf 2winv)
        (:aux1 (:cmd wacs-eshell))))
