@@ -151,3 +151,27 @@ Feature: Use wacspace to manage projects
      And I type "otherproject"
      And I execute the action chain
      Then the numeric value of switch-count should be 4
+
+   Scenario: wacspacs-svae also updates open projects
+     When I load the following:
+     """
+     (defwacspace (emacs-lisp-mode)
+       (:default
+        (:winconf 2winv)
+        (:aux1 (:cmd wacs-eshell))))
+     """
+     When I am visiting the project file "main.el" in emacs-lisp-mode
+     And I press "C-z C-w"
+     And I switch to the next window
+     And I switch to buffer "*scratch*"
+     And I press "C-z C-s"
+     And I am in the project "otherproject"
+     And I am visiting the project file "other.el" in emacs-lisp-mode
+     And I press "C-z C-w"
+     Then the 2nd window should be in buffer "*eshell*<otherproject>"
+     When I start an action chain
+     And I press "C-z C-p"
+     And I type "wacsproject"
+     And I execute the action chain
+     Then I should be in buffer "main.el"
+     And the 2nd window should be in buffer "*scratch*"

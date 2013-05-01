@@ -494,8 +494,7 @@ MAIN-WINDOW is the window from which `wacspace' was called."
                wacs--after-switch-fns)
       (save-window-excursion
         (funcall after-switch)))
-    (message "wacspace configured")
-    (wacspace-save arg)))
+    (message "wacspace configured")))
 
 (defun wacs--update-open-projects (buffer arg)
   "Update `wacs--open-projects' with BUFFER and ARG."
@@ -520,10 +519,10 @@ workspace."
   (unless (wacspace-restore arg)
     (-if-let* ((wacs-main-buffer (current-buffer))
                (config (wacs--get-config arg)))
-      (wacs--set-up-workspace arg config)
+      (progn (wacs--set-up-workspace arg config)
+             (wacspace-save arg))
       (error
-       "No wacspace configuration available for the current mode")))
-  (wacs--update-open-projects (current-buffer) arg))
+       "No wacspace configuration available for the current mode"))))
 
 ;;;###autoload
 (defun wacspace-save (&optional arg)
@@ -548,6 +547,7 @@ restored."
       (puthash (window-buffer it)
                new-config-alist
                wacs--saved-workspaces))
+    (wacs--update-open-projects (current-buffer) arg)
     (message "wacspace saved")))
 
 ;;;###autoload
@@ -574,6 +574,7 @@ configuration."
               (goto-char (point-max))))
           (wacs--switch-to-window-with-buffer buffer)
           (goto-char pos)
+          (wacs--update-open-projects (current-buffer) arg)
           (message "wacspace restored")
           t)))))
 
