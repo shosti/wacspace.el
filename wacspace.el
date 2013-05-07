@@ -581,13 +581,14 @@ configuration."
 (defun wacspace-switch-project ()
   "Quickly switch between open projects."
   (interactive)
-  (if (or (null wacs--open-projects)
-          (= (length wacs--open-projects) 1))
-      (message "No other projects open")
+  (if (null wacs--open-projects)
+      (message "No open projects")
     (let* ((project-names (-map 'car wacs--open-projects))
            (project (completing-read "Project: " project-names
                                      nil t nil nil
-                                     (cadr project-names)))
+                                     (if (= (length project-names) 1)
+                                         (car project-names)
+                                       (cadr project-names))))
            (config (wacs--alist-get project wacs--open-projects))
            (buffer (car config))
            (last-prefix (cdr config)))
