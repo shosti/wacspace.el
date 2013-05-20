@@ -52,7 +52,7 @@ buffer does not exist with the exact match.")
   "Save frame with `wacspace'.
 
 When set to t, wacspace will save the frame configuration as
-well as the window configuration. Set to t by default in graphic
+well as the window configuration.  Set to t by default in graphic
 display and nil if Emacs is run in a terminal.")
 
 (defvar wacs-main-buffer nil
@@ -65,8 +65,8 @@ wacspace is called.")
   "Base file name in projects.
 
 Wacspace will assume that project base directories have this
-filename in them. This variable be dynamically bound within
-helper functions. When set to nil, wacspace will assume that the
+filename in them.  This variable be dynamically bound within
+helper functions.  When set to nil, wacspace will assume that the
 current directory is the base directory.")
 
 (defvar wacs-end-of-buffer-modes '(eshell-mode shell-mode comint-mode)
@@ -80,59 +80,6 @@ buffer after restoring or setting up.")
 
 Bound to C-z by default.")
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Useful helper functions ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun wacs-project-dir ()
-  "Return the project directory of `wacs-main-buffer'.
-
-Looks for `wacs-project-base-file'. If not found, defaults to the
-current directory."
-  (-if-let (dir (buffer-file-name wacs-main-buffer))
-    (let ((fname (file-name-directory dir)))
-      (expand-file-name
-       (-if-let* ((base-file wacs-project-base-file)
-                  (project-dir (locate-dominating-file
-                                fname
-                                base-file)))
-         project-dir
-         (file-name-directory fname))))
-    default-directory))
-
-(defun wacs-project-name ()
-  "Return the name of the current project."
-  (if wacs--project-name-fn
-      (funcall wacs--project-name-fn)
-    (-> (wacs-project-dir)
-      (split-string "/" t)
-      (last)
-      (car))))
-
-(defun wacs-make-comint (name program &optional startfile &rest switches)
-  "Make a project-specific comint buffer.
-
-Acts as a drop-in replacement for `make-comint'. For best
-results, use within `defwacspace' configurations."
-  (interactive)
-  (let ((default-directory (wacs-project-dir))
-        (buffer-name (concat "*" name "*<" (wacs-project-name) ">")))
-    (apply 'make-comint-in-buffer
-           (append (list name buffer-name program startfile) switches))
-    (make-comint-in-buffer name buffer-name program startfile switches)))
-
-(defun wacs-eshell ()
-  "Open an eshell in the main project directory."
-  (let ((default-directory (wacs-project-dir))
-        (eshell-buffer-name (concat "*eshell*<"
-                                    (wacs-project-name)
-                                    ">")))
-    (eshell)))
-
-(defun wacs-shell ()
-  "Open a new shell in the main project directory."
-  (let ((default-directory (wacs-project-dir)))
-    (shell (concat "*shell*<" (wacs-project-name) ">"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Private configuration ;;
@@ -174,6 +121,61 @@ instead.")
 
 Keys are project names, values are functions.")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Useful helper functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun wacs-project-dir ()
+  "Return the project directory of `wacs-main-buffer'.
+
+Looks for `wacs-project-base-file'.  If not found, defaults to the
+current directory."
+  (-if-let (dir (buffer-file-name wacs-main-buffer))
+    (let ((fname (file-name-directory dir)))
+      (expand-file-name
+       (-if-let* ((base-file wacs-project-base-file)
+                  (project-dir (locate-dominating-file
+                                fname
+                                base-file)))
+         project-dir
+         (file-name-directory fname))))
+    default-directory))
+
+(defun wacs-project-name ()
+  "Return the name of the current project."
+  (if wacs--project-name-fn
+      (funcall wacs--project-name-fn)
+    (-> (wacs-project-dir)
+      (split-string "/" t)
+      (last)
+      (car))))
+
+(defun wacs-make-comint (name program &optional startfile &rest switches)
+  "Make a project-specific comint buffer.
+
+Acts as a drop-in replacement for `make-comint' (with equivalent
+arguments NAME, PROGRAM, STARTFILE, and SWITCHES).  For best
+results, use within `defwacspace' configurations."
+  (interactive)
+  (let ((default-directory (wacs-project-dir))
+        (buffer-name (concat "*" name "*<" (wacs-project-name) ">")))
+    (apply 'make-comint-in-buffer
+           (append (list name buffer-name program startfile) switches))
+    (make-comint-in-buffer name buffer-name program startfile switches)))
+
+(defun wacs-eshell ()
+  "Open an eshell in the main project directory."
+  (let ((default-directory (wacs-project-dir))
+        (eshell-buffer-name (concat "*eshell*<"
+                                    (wacs-project-name)
+                                    ">")))
+    (eshell)))
+
+(defun wacs-shell ()
+  "Open a new shell in the main project directory."
+  (let ((default-directory (wacs-project-dir)))
+    (shell (concat "*shell*<" (wacs-project-name) ">"))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions and macros ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -181,9 +183,9 @@ Keys are project names, values are functions.")
 (defun wacs--eval-aux-cond (aux-cond)
   "Evaluate AUX-COND.
 
-If passed a symbol, evaluate the symbol as a variable. If passed
-an inline lambda, funcall the lambda. If passed a (:var VAR)
-pair, evaluate VAR as a variable. If passed a (:fn FN) pair,
+If passed a symbol, evaluate the symbol as a variable.  If passed
+an inline lambda, funcall the lambda.  If passed a (:var VAR)
+pair, evaluate VAR as a variable.  If passed a (:fn FN) pair,
 funcall FN."
   (if (consp aux-cond)
       (let ((cond-val (cadr aux-cond)))
@@ -244,8 +246,8 @@ If KEY already exists as a key in ALIST, delete the entry."
 ;; Configuration ;;
 ;;;;;;;;;;;;;;;;;;;
 
-(defun wacs--resolve-prefix (config arg &optional default)
-  "Return the final configuration from CONFIG with prefix ARG. "
+(defun wacs--resolve-prefix (config arg)
+  "Return the final configuration from CONFIG with prefix ARG."
   (let ((arg-key (if arg
                      (intern (concat ":" (number-to-string arg)))
                    :default)))
@@ -336,7 +338,7 @@ for the default configuration. Then give up. Whew."
 
 ;;;###autoload
 (defun wacs--push-config (mode aux-cond entry propname)
-  "Push config ENTRY for MODE and AUX-COND onto CONFIG-ALIST."
+  "Given MODE and AUX-COND, push ENTRY with property name PROPNAME."
   (let ((aux-cond-key (or aux-cond :default))
         (mode-list (get mode propname)))
     (put mode propname
@@ -508,8 +510,8 @@ MAIN-WINDOW is the window from which `wacspace' was called."
   "Set up your Emacs workspace.
 
 If there is a saved configuration with numeric prefix ARG,
-restore that. Otherwise, set up your workspace based on your
-wacspace configuration. If called with universal prefix
+restore that.  Otherwise, set up your workspace based on your
+wacspace configuration.  If called with universal prefix
 arg (C-u), force reconfiguration even if there is a saved
 workspace."
   (interactive "P")
@@ -601,7 +603,7 @@ configuration."
 (defun wacs-clear-saved (&optional buffer)
   "Clear saved workspaces associated with BUFFER.
 
-BUFFER can be a string or a buffer object. If called
+BUFFER can be a string or a buffer object.  If called
 interactively, will clear saved workspaces associated with the
 current buffer."
   (interactive)
@@ -651,7 +653,7 @@ current buffer."
 
 ;;;###autoload
 (defun wacs-set-up-keys ()
-  "Sets up C-z as a prefix with wacspace commands."
+  "Set up C-z as a prefix with wacspace commands."
   (wacs-set-up-prefix)
   (global-set-key (kbd "C-z") 'wacs-prefix-map))
 
