@@ -485,6 +485,9 @@ MAIN-WINDOW is the window from which `wacspace' was called."
            (wacs--with-property (winconf)
              (wacs--run-winconf winconf))))
       (wacs--set-up-windows config main-window))
+    (wacs--with-property (run)
+      (save-window-excursion
+        (funcall run)))
     (wacs--with-property (after)
       (save-window-excursion
         (funcall after)))
