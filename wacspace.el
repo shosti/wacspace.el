@@ -80,13 +80,12 @@ buffer after restoring or setting up.")
 
 Bound to C-z by default.")
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Private configuration ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;Because it's used within autoloaded macros, wacs--frame-fns need to
-;;be autoloaded
+;; Because it's used within autoloaded macros, wacs--frame-fns needs to
+;; be autoloaded
 
 (defvar wacs--winconfs nil
   "The wacspace winconf alist.
@@ -467,7 +466,6 @@ MAIN-WINDOW is the window from which `wacspace' was called."
                (:cmd (funcall (cdr buffer-conf)))))
            (setq-local wacs-project-base-file
                        wacs-project-base-file)))
-  (select-window main-window)
   (wacs--switch-to-window-with-buffer wacs-main-buffer))
 
 (defun wacs--set-up-workspace (arg config)

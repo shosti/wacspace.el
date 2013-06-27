@@ -20,7 +20,14 @@ Feature: Save/restore workspace
        (:winconf 2winh)
        (:frame right)
        (:main (:buffer "*ruby*"))
-       (:aux1 (:buffer :main))))
+       (:aux1 (:buffer :main)))
+      (:4
+       (:winconf 1win)))
+
+    (defwacspace (inf-ruby-mode)
+     (:default
+      (:winconf 1win))
+     (:1))
     """
     And I am in buffer "*main*"
     And I turn on ruby-mode
@@ -143,3 +150,12 @@ Feature: Save/restore workspace
     When I press "C-u C-z C-w"
     Then I should be in buffer "*main*"
     And the 2nd window should be in buffer "*ruby*"
+
+  Scenario: Wacspace only saves relevant windows
+    When I press "C-z C-4"
+    Then there should be 1 window
+    And I should be in buffer "*main*"
+    When I switch to buffer "*ruby*"
+    And I press "C-z C-1"
+    Then there should be 1 window
+    And I should be in buffer "*ruby*"

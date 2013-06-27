@@ -46,7 +46,7 @@
               "Window #%s should be in buffer %s but is in buffer %s"
               n expected-name (buffer-name)))))
 
-(Then "^there should be \\([0-9]+\\) windows$"
+(Then "^there should be \\([0-9]+\\) windows?$"
   (lambda (wins)
     (assert (= (string-to-number wins)
                (length (window-list))) nil
