@@ -217,7 +217,7 @@ and OTHER-AUX-COND are the mode and condition to alias to."
   (cons 'progn
         (append
          (-map (lambda (pair) `(defwacsalias ,pair
-                            (,other-mode ,other-aux-cond)))
+                                 (,other-mode ,other-aux-cond)))
                mode-pairs))))
 
 ;;;###autoload

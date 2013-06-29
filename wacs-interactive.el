@@ -108,7 +108,7 @@ MAIN-WINDOW is the window from which `wacspace' was called."
     (wacs--with-property (before)
       (save-window-excursion
         (funcall before)))
-        (wacs--with-property (frame)
+    (wacs--with-property (frame)
       (wacs--set-frame frame))
     (let ((main-window
            (wacs--with-property (winconf)
@@ -227,7 +227,7 @@ configuration."
       (set-buffer buffer)
       (wacspace last-prefix)
       (-when-let (after-switch (gethash project
-                                         wacs--after-switch-fns))
+                                        wacs--after-switch-fns))
         (funcall after-switch)))))
 
 (defun wacs-clear-saved (&optional buffer)
