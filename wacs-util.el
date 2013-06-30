@@ -32,7 +32,7 @@
 (require 'dash)
 (require 'cl-lib)
 
-(defun wacs--eval-aux-cond (aux-cond)
+(defun wacs/eval-aux-cond (aux-cond)
   "Evaluate AUX-COND.
 
 If passed a symbol, evaluate the symbol as a variable.  If passed
@@ -49,42 +49,42 @@ funcall FN."
     (when (boundp aux-cond)
       (symbol-value aux-cond))))
 
-(defun wacs--switch-to-window-with-buffer (buffer)
+(defun wacs/switch-to-window-with-buffer (buffer)
   "Switch to the window with BUFFER."
   (-each-while (window-list)
                (lambda (_) (not (equal (window-buffer) buffer)))
                (lambda (_) (other-window 1))))
 
-(defun wacs--list->dotted-pair (list)
+(defun wacs/list->dotted-pair (list)
   "Change the current LIST pair and sub-list pair into dotted pairs."
   (let ((snd (cadr list)))
     (if (and (listp snd) (= (length snd) 2))
-        (cons (car list) (wacs--list->dotted-pair snd))
+        (cons (car list) (wacs/list->dotted-pair snd))
       (cons (car list) (cadr list)))))
 
-(defmacro wacs--alist-delete (key alist)
+(defmacro wacs/alist-delete (key alist)
   "Delete KEY from alist ALIST."
   `(setq ,alist
          (cl-remove-if (lambda (entry)
                          (equal (car entry) ,key))
                        ,alist)))
 
-(defmacro wacs--alist-put (key val alist)
+(defmacro wacs/alist-put (key val alist)
   "Push (KEY . VAL) into alist ALIST.
 
 If KEY already exists as a key in ALIST, delete the entry."
-  `(progn (wacs--alist-delete ,key ,alist)
+  `(progn (wacs/alist-delete ,key ,alist)
           (push (cons ,key ,val) ,alist)))
 
-(defun wacs--alist-get (key alist)
+(defun wacs/alist-get (key alist)
   "Get element associated with KEY from ALIST."
   (cdr (assoc key alist)))
 
-(defun wacs--u-prefix? (arg)
+(defun wacs/u-prefix? (arg)
   "Test whether ARG is universal prefix argument."
   (equal arg '(4)))
 
-(defun wacs--to-cons (thing)
+(defun wacs/to-cons (thing)
   "Make sure THING is a cons cell."
   (if (consp thing) thing (list thing)))
 

@@ -1,4 +1,4 @@
-(ert-deftest wacs--alist-delete ()
+(ert-deftest wacs/alist-delete ()
   (let ((alist
          '(("a" . 1)
            ("b" . 2)
@@ -7,14 +7,14 @@
         (expected-result
          '(("a" . 1)
            ("c" . 3))))
-    (wacs--alist-delete "b" alist)
+    (wacs/alist-delete "b" alist)
     (should (equal alist
                    expected-result))
-    (wacs--alist-delete "d" alist)
+    (wacs/alist-delete "d" alist)
     (should (equal alist
                    expected-result))))
 
-(ert-deftest wacs--alist-put ()
+(ert-deftest wacs/alist-put ()
   (let ((alist
          '(("a" . 1)
            ("b" . 2)
@@ -23,48 +23,48 @@
          '(("b" . 5)
            ("a" . 1)
            ("c" . 3))))
-    (wacs--alist-put "b" 5 alist)
+    (wacs/alist-put "b" 5 alist)
     (should (equal alist
                    expected-result))))
 
-(ert-deftest wacs--alist-put-nil ()
+(ert-deftest wacs/alist-put-nil ()
   (let ((alist nil)
         (expected-result
          '(("a" . 4)
            ("c" . 5))))
-    (wacs--alist-put "a" 3 alist)
-    (wacs--alist-put "c" 5 alist)
-    (wacs--alist-put "a" 4 alist)
+    (wacs/alist-put "a" 3 alist)
+    (wacs/alist-put "c" 5 alist)
+    (wacs/alist-put "a" 4 alist)
     (should (equal alist
                    expected-result))))
 
-(ert-deftest wacs--alist-get ()
+(ert-deftest wacs/alist-get ()
   (let ((alist
          (list (cons "a" '(something cool))
                (cons 'b '(something else))
                (cons 'c 'foo))))
-    (should (equal (wacs--alist-get "a" alist)
+    (should (equal (wacs/alist-get "a" alist)
                    '(something cool)))
-    (should (equal (wacs--alist-get 'b alist)
+    (should (equal (wacs/alist-get 'b alist)
                    '(something else)))
-    (should (equal (wacs--alist-get 'c alist)
+    (should (equal (wacs/alist-get 'c alist)
                    'foo))))
 
-(ert-deftest wacs--update-open-projects ()
-  (let ((wacs--open-projects nil)
-        (wacs--project-name-fn
+(ert-deftest wacs/update-open-projects ()
+  (let ((wacs/open-projects nil)
+        (wacs/project-name-fn
          (lambda ()
            "project")))
-    (wacs--update-open-projects "buffer1" 1)
-    (wacs--update-open-projects "buffer2" nil)
-    (wacs--update-open-projects "buffer2" 3)
-    (wacs--update-open-projects "buffer1" 2)
-    (wacs--update-open-projects "buffer1" 4)
-    (wacs--update-open-projects "buffer1" 7)
-    (should (equal wacs--open-projects
+    (wacs/update-open-projects "buffer1" 1)
+    (wacs/update-open-projects "buffer2" nil)
+    (wacs/update-open-projects "buffer2" 3)
+    (wacs/update-open-projects "buffer1" 2)
+    (wacs/update-open-projects "buffer1" 4)
+    (wacs/update-open-projects "buffer1" 7)
+    (should (equal wacs/open-projects
                    (list (cons "project"
                                '("buffer1" . 7)))))
-    (should (equal (wacs--alist-get "project" wacs--open-projects)
+    (should (equal (wacs/alist-get "project" wacs/open-projects)
                    '("buffer1" . 7)))))
 
 (ert-deftest wacs-aliases ()
@@ -72,13 +72,13 @@
 
   (defwacsalias (js-mode rinari-minor-mode)
     (ruby-mode rinari-minor-mode))
-  (should (equal (wacs--alist-get 'rinari-minor-mode
+  (should (equal (wacs/alist-get 'rinari-minor-mode
                                   (get 'js-mode 'wacs-alias))
                  '(ruby-mode . rinari-minor-mode)))
 
   (defwacsalias (js-mode)
     (emacs-lisp-mode))
-  (should (equal (wacs--alist-get :default
+  (should (equal (wacs/alist-get :default
                                   (get 'js-mode 'wacs-alias))
                  '(emacs-lisp-mode)))
 
@@ -88,7 +88,7 @@
 
   (let ((major-mode 'js-mode)
         (rinari-minor-mode t))
-    (should (equal (wacs--get-config)
+    (should (equal (wacs/get-config)
                    '((:winconf . 3winv)))))
 
   (defwacspace (js-mode rinari-minor-mode)
@@ -97,7 +97,7 @@
 
   (let ((major-mode 'js-mode)
         (rinari-minor-mode t))
-    (should (equal (wacs--get-config)
+    (should (equal (wacs/get-config)
                    '((:winconf . 2winh))))))
 
 (ert-deftest multiple-conditions ()
@@ -113,16 +113,16 @@
 
   (setq foo t)
   (let ((major-mode 'octave-mode))
-    (should (equal (wacs--get-config)
+    (should (equal (wacs/get-config)
                    '((:winconf . 1win)))))
   (setq bar t)
   (let ((major-mode 'octave-mode))
-    (should (equal (wacs--get-config)
+    (should (equal (wacs/get-config)
                    '((:winconf . 2winv)))))
 
   (setq bar nil)
   (let ((major-mode 'octave-mode))
-    (should (equal (wacs--get-config)
+    (should (equal (wacs/get-config)
                    '((:winconf . 1win))))))
 
 (ert-deftest inherit-from-default ()
@@ -142,11 +142,11 @@
      (:winconf 1win)))
 
   (let ((major-mode 'text-mode))
-    (should (equal (wacs--get-config)
+    (should (equal (wacs/get-config)
                    '((:winconf . 2winv)
                      (:winconf . 3winv)
                      (:frame . full))))
-    (should (equal (wacs--get-config 1)
+    (should (equal (wacs/get-config 1)
                    '((:winconf . 1win)
                      (:winconf . 2winv)
                      (:winconf . 2winh)
