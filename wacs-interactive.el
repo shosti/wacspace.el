@@ -8,7 +8,7 @@
 
 ;;; Commentary:
 
-;; Interactive commands for wacspace.el
+;; Interactive commands for wacspace.el.
 
 ;;; License:
 

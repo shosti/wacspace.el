@@ -8,7 +8,7 @@
 
 ;;; Commentary:
 
-;; Initialization and defaults for wacspace.el
+;; Initialization and defaults for wacspace.el.
 
 ;;; License:
 

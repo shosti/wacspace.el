@@ -8,7 +8,7 @@
 
 ;;; Commentary:
 
-;; Utility functions and macros for wacspace.el
+;; Utility functions and macros for wacspace.el.
 
 ;;; License:
 

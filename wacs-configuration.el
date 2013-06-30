@@ -8,7 +8,7 @@
 
 ;;; Commentary:
 
-;; Configuration management for wacspace.el
+;; Configuration management for wacspace.el.
 
 ;;; License:
 
