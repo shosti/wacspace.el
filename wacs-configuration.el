@@ -187,46 +187,73 @@ for the default configuration. Then give up. Whew."
     t))
 
 ;;;###autoload
-(cl-defmacro defwacspace ((mode &optional aux-cond) &body configuration)
-  "Define a wacspace for a major mode and an optional auxiliary condition.
+(defmacro defwacspace (condition &rest configuration)
+  "Define a wacspace.
 
+The CONDITION can either be a major mode (such as
+`emacs-lisp-mode') or a (MAJOR-MODE AUXILIARY-CONDITION) pair.
 The auxiliary condition can be a variable (such as a minor mode),
-an inline lambda, a (:fn FN) pair, or a (:var VAR) pair. For full
-documentation of configuration options, see the README."
-  (let ((entry (wacs--process-config configuration)))
+an inline lambda, or a (:fn FN) pair. For full documentation of
+CONFIGURATION options, see the README.
+
+Some examples:
+
+\(defwacspace python-mode
+  ...)
+-Default wacspace for `python-mode' buffers.
+
+\(defwacspace  (ruby-mode rinari-minor-mode)
+  ...)
+-Activates in `ruby-mode' when `rinari-minor-mode' is turned on.
+
+\(defwacspace (clojure-mode (lambda ()
+                             (string-match \"test\" buffer-file-name)))
+  ...)
+-Activates in `clojure-mode' when \"test\" is in the buffer's file name.
+
+\(defwacspace (java-mode (:fn is-enterprisy))
+  ...)
+-Activates in `java-mode' when function `is-enterprisy' evalutates to non-nil."
+
+  (let ((mode (car (wacs--to-cons condition)))
+        (aux-cond (cadr (wacs--to-cons condition)))
+        (entry (wacs--process-config configuration)))
     `(wacs--push-config ',mode ',aux-cond ',entry 'wacs-config)))
 
 ;;;###autoload
-(cl-defmacro defwacsalias ((mode &optional aux-cond)
-                           (other-mode &optional other-aux-cond))
-  "Define a wacspace alias.
+(defmacro defwacsalias (condition target-condition)
+  "Define a wacspace alias from CONDITION to TARGET-CONDITION.
 
-When wacspace is invoked with MODE and AUX-COND, it will run the
-same way as it would for buffers in OTHER-MODE and
-OTHER-AUX-COND."
-  (let ((entry `(,other-mode . ,other-aux-cond)))
+When CONDITION is satisfied and `wacspace' is invoked, the
+configuration for TARGET-CONDITION will be run. For full details
+of CONDITION and TARGET-CONDITION, see the docstring for
+`defwacspace'"
+  (let* ((mode (car (wacs--to-cons condition)))
+         (aux-cond (cadr (wacs--to-cons condition)))
+         (target-condition (wacs--to-cons target-condition))
+         (entry (cons (car target-condition) (cadr target-condition))))
     `(wacs--push-config ',mode ',aux-cond ',entry 'wacs-alias)))
 
 ;;;###autoload
-(cl-defmacro defwacsaliases ((&rest mode-pairs)
-                             (other-mode &optional other-aux-cond))
+(defmacro defwacsaliases (conditions
+                          target-condition)
   "Define multiple aliases for a mode.
 
-MODE-PAIRS should be a list of (MODE AUX-COND) pairs. OTHER-MODE
-and OTHER-AUX-COND are the mode and condition to alias to."
+CONDITIONS should be a list of conditions according to the rules
+of `defwacspace'. TARGET-CONDITION is the condition to alias to."
   (cons 'progn
         (append
-         (-map (lambda (pair) `(defwacsalias ,pair
-                                 (,other-mode ,other-aux-cond)))
-               mode-pairs))))
+         (-map (lambda (cond) `(defwacsalias ,cond
+                            ,target-cond))
+               conditions))))
 
 ;;;###autoload
-(cl-defmacro defwinconf (conf-name &body body)
-  "Define a wacspace window configuration.
+(defmacro defwinconf (conf-name &rest body)
+  "Define a wacspace window configuration named CONF-NAME.
 
-This is defined as a function (e.g. a sequence of window
-splitting commands). The function need not stop with the original
-window active."
+BODY is the body of a function to be run when the configuration
+is run (e.g. a sequence of window splitting commands). The
+function need not stop with the original window active."
   `(wacs--alist-put  ',conf-name
                      '(lambda () ,@body)
                      wacs--winconfs))

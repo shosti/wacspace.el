@@ -9,7 +9,7 @@ Feature: Use wacspace to manage projects
   Scenario: Eshell in same directory
     When I load the following:
     """
-    (defwacspace (emacs-lisp-mode)
+    (defwacspace emacs-lisp-mode
       (:default
        (:winconf 2winv)
        (:aux1 (:cmd wacs-eshell))))
@@ -25,7 +25,7 @@ Feature: Use wacspace to manage projects
   Scenario: Eshell in project directory
     When I load the following:
     """
-    (defwacspace (emacs-lisp-mode)
+    (defwacspace emacs-lisp-mode
       (:default
        (:winconf 2winv)
        (:aux1 (:cmd wacs-eshell))))
@@ -48,7 +48,7 @@ Feature: Use wacspace to manage projects
   Scenario: Shell in project directory
     When I load the following:
     """
-    (defwacspace (emacs-lisp-mode)
+    (defwacspace emacs-lisp-mode
       (:base-file ".project")
       (:default
        (:winconf 2winv)
@@ -66,7 +66,7 @@ Feature: Use wacspace to manage projects
   Scenario: Using the project name option
     When I load the following:
     """
-    (defwacspace (emacs-lisp-mode)
+    (defwacspace emacs-lisp-mode
       (:project-name-fn (lambda ()
                           "coolproj"))
       (:default
@@ -80,7 +80,7 @@ Feature: Use wacspace to manage projects
   Scenario: Quickly switch between projects
     When I load the following:
     """
-    (defwacspace (emacs-lisp-mode)
+    (defwacspace emacs-lisp-mode
       (:default
        (:winconf 2winv)
        (:aux1 (:cmd wacs-eshell))))
@@ -101,7 +101,7 @@ Feature: Use wacspace to manage projects
   Scenario: Quickly switching saves the last-used prefix key
     When I load the following:
     """
-    (defwacspace (emacs-lisp-mode)
+    (defwacspace emacs-lisp-mode
       (:default
        (:winconf 2winv)
        (:aux1 (:cmd wacs-eshell)))
@@ -128,7 +128,7 @@ Feature: Use wacspace to manage projects
     """
     (setq switch-count 0)
 
-    (defwacspace (octave-mode)
+    (defwacspace octave-mode
       (:after-switch (lambda () (incf switch-count)))
       (:default
        (:winconf 2winv)
@@ -155,7 +155,7 @@ Feature: Use wacspace to manage projects
    Scenario: wacspacs-svae also updates open projects
      When I load the following:
      """
-     (defwacspace (emacs-lisp-mode)
+     (defwacspace emacs-lisp-mode
        (:default
         (:winconf 2winv)
         (:aux1 (:cmd wacs-eshell))))

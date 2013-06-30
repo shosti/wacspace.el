@@ -22,7 +22,7 @@ Feature: Set up workspace
        (:main (:buffer "*rails console*"))
        (:aux1 (:buffer :main))))
 
-    (defwacspace (ruby-mode)
+    (defwacspace ruby-mode
       (:before run-ruby)
       (:default
        (:winconf 2winv)
@@ -38,7 +38,7 @@ Feature: Set up workspace
        (:main (:buffer "*ruby*"))
        (:aux1 (:buffer :main))))
 
-    (defwacspace (:default)
+    (defwacspace :default
       (:default
        (:winconf 2winv)
        (:aux1 (:cmd shell))))
@@ -77,7 +77,7 @@ Feature: Set up workspace
   Scenario: wacspace with regexp buffer matching
     When I load the following:
     """
-    (defwacspace (ruby-mode)
+    (defwacspace ruby-mode
         (:before run-ruby)
         (:default
          (:winconf 2winv)
@@ -147,7 +147,7 @@ Feature: Set up workspace
   Scenario: Inherit from the default wacspace
     When I load the following:
     """
-    (defwacspace (octave-mode)
+    (defwacspace octave-mode
       (:default
        (:aux1 (:buffer "*scratch*"))))
     """

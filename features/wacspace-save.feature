@@ -6,7 +6,7 @@ Feature: Save/restore workspace
   Background:
     When I load the following:
     """
-    (defwacspace (ruby-mode)
+    (defwacspace ruby-mode
       (:before run-ruby)
       (:default
        (:winconf 2winv)
@@ -24,7 +24,7 @@ Feature: Save/restore workspace
       (:4
        (:winconf 1win)))
 
-    (defwacspace (inf-ruby-mode)
+    (defwacspace inf-ruby-mode
      (:default
       (:winconf 1win))
      (:1))

@@ -84,6 +84,10 @@ If KEY already exists as a key in ALIST, delete the entry."
   "Test whether ARG is universal prefix argument."
   (equal arg '(4)))
 
+(defun wacs--to-cons (thing)
+  "Make sure THING is a cons cell."
+  (if (consp thing) thing (list thing)))
+
 (provide 'wacs-util)
 
 ;;; wacs-util.el ends here

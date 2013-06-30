@@ -12,7 +12,7 @@ Feature: Use aliases to organize similar modes
        (:aux1 (:buffer "*rails console*"))
        (:aux2 (:cmd eshell))))
 
-     (defwacspace (js-mode)
+     (defwacspace js-mode
       (:default
        (:winconf 2winv)
        (:aux1 (:cmd eshell))))
