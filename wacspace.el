@@ -67,7 +67,11 @@ current directory is the base directory."
   :group 'wacspace
   :type 'string)
 
-(defcustom wacs-end-of-buffer-modes '(eshell-mode shell-mode comint-mode)
+(defcustom wacs-end-of-buffer-modes '(eshell-mode
+                                      shell-mode
+                                      comint-mode
+                                      inferior-python-mode
+                                      inf-ruby-mode)
   "Modes in which to scroll to the end of buffers.
 
 Major modes where wacspace will scroll to the end of the

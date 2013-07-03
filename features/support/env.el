@@ -20,6 +20,7 @@
 (require 'ert)
 (require 'ruby-mode)
 (require 'rinari)
+(require 'lorem-ipsum)
 
 (Setup
  (window-configuration-to-register :pre-ecukes)

@@ -112,3 +112,15 @@
       (assert (equal symbol-val val) nil
               "Symbol %s should equal %s but is %s"
               symbol-name val symbol-val))))
+
+(And "^I insert some text$"
+       (lambda ()
+         (Lorem-ipsum-insert-paragraphs 5)))
+
+(And "^I go to the end of the buffer$"
+       (lambda ()
+         (end-of-buffer)))
+
+(Then "^the point should be at the end$"
+  (lambda ()
+    (assert (equal (point) (point-max)))))
