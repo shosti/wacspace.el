@@ -38,7 +38,6 @@
 (defvar wacs-regexp-buffer-switching)
 (defvar wacs-project-base-file)
 (defvar wacs-save-frame)
-(defvar wacs-end-of-buffer-modes)
 
 (defun wacs/run-winconf (conf-name)
   "Run winconf with name CONF-NAME."
@@ -198,25 +197,23 @@ Usually, you should call `wacspace' directly instead of this
 function unless you want to skip the possibility of
 configuration."
   (let ((buffer (current-buffer))
-        (pos (point)))
+        (buffer-points
+         (-map (lambda (b) (cons b (wacs/buffer-point b))) (buffer-list))))
     (ignore-errors
-      (let* ((config (cadr
-                      (assoc (or arg :default)
-                             (gethash buffer
-                                      wacs/saved-workspaces)))))
-        (when config
-          (if wacs-save-frame
-              (set-frame-configuration config)
-            (set-window-configuration config))
-          (--each (window-list)
-            (select-window it)
-            (when (memq major-mode wacs-end-of-buffer-modes)
-              (goto-char (point-max))))
-          (wacs/switch-to-window-with-buffer buffer)
-          (goto-char pos)
-          (wacs/update-open-projects (current-buffer) arg)
-          (message "wacspace restored")
-          t)))))
+      (-when-let (config (cadr
+                          (assoc (or arg :default)
+                                 (gethash buffer
+                                          wacs/saved-workspaces))))
+        (if wacs-save-frame
+            (set-frame-configuration config)
+          (set-window-configuration config))
+        (--each (window-list)
+          (set-window-point it (wacs/alist-get (window-buffer it)
+                                               buffer-points)))
+        (wacs/switch-to-window-with-buffer buffer)
+        (wacs/update-open-projects (current-buffer) arg)
+        (message "wacspace restored")
+        t))))
 
 (defun wacspace-switch-project ()
   "Quickly switch between open projects."

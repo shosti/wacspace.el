@@ -156,3 +156,14 @@ Feature: Set up workspace
     Then there should be 2 windows
     And I should be in buffer "*md*"
     And the 2nd window should be in buffer "*scratch*"
+
+  Scenario: Restoring doesn't change the point or start of buffers
+    When I am in buffer "*main*" in ruby-mode
+    And I press "C-z C-w"
+    And I switch to the next window
+    And I insert some text
+    And I go to the end of the buffer
+    And I switch to the next window
+    And I press "C-z C-w"
+    And I switch to the next window
+    Then the point should be at the end

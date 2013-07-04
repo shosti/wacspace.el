@@ -6,4 +6,5 @@
  (depends-on "ecukes")
  (depends-on "espuds")
  (depends-on "inf-ruby")
- (depends-on "rinari"))
+ (depends-on "rinari")
+ (depends-on "lorem-ipsum"))

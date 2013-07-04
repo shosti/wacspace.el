@@ -65,14 +65,6 @@ current directory is the base directory."
   :group 'wacspace
   :type 'string)
 
-(defcustom wacs-end-of-buffer-modes '(eshell-mode shell-mode comint-mode)
-  "Modes in which to scroll to the end of buffers.
-
-Major modes where wacspace will scroll to the end of the
-buffer after restoring or setting up."
-  :group 'wacspace
-  :type 'sexp)
-
 (defvar wacs/winconfs nil
   "The wacspace winconf alist.
 

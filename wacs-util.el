@@ -53,6 +53,9 @@ funcall FN."
   "Switch to the window with BUFFER."
   (select-window (get-buffer-window buffer)))
 
+(defun wacs/buffer-point (buffer)
+  (with-current-buffer buffer
+    (point)))
 
 (defun wacs/list->dotted-pair (list)
   "Change the current LIST pair and sub-list pair into dotted pairs."
