@@ -112,7 +112,7 @@ MAIN-WINDOW is the window from which `wacspace' was called."
              wacs-project-base-file
              (file-name-nondirectory (buffer-file-name))))
         (wacs/project-name-fn (wacs/alist-get :project-name-fn
-                                                config)))
+                                              config)))
     (wacs/with-property (before)
       (save-window-excursion
         (funcall before)))
@@ -140,8 +140,8 @@ MAIN-WINDOW is the window from which `wacspace' was called."
   "Update `wacs/open-projects' with BUFFER and ARG."
   (let ((project-name (wacs-project-name)))
     (wacs/alist-put project-name
-                     (cons buffer arg)
-                     wacs/open-projects)))
+                    (cons buffer arg)
+                    wacs/open-projects)))
 
 ;;;###autoload
 (defun wacspace (&optional arg)
@@ -181,8 +181,8 @@ restored."
          (current-buffers (-map 'window-buffer (window-list)))
          (new-config-alist
           (wacs/alist-put (or arg :default)
-                           (cons config current-buffers)
-                           config-symbol-alist)))
+                          (cons config current-buffers)
+                          config-symbol-alist)))
     (--each (window-list)
       (puthash (window-buffer it)
                new-config-alist
