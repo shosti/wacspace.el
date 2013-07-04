@@ -32,6 +32,14 @@
 (require 'wacs-util)
 (require 'wacs-configuration)
 
+;; Declare variables defined in wacs-configuration to keep the
+;; compiler happy
+
+(defvar wacs-regexp-buffer-switching)
+(defvar wacs-project-base-file)
+(defvar wacs-save-frame)
+(defvar wacs-end-of-buffer-modes)
+
 (defun wacs/run-winconf (conf-name)
   "Run winconf with name CONF-NAME."
   (delete-other-windows)

@@ -35,46 +35,6 @@
 
 ;;; Code:
 
-(defgroup wacspace nil
-  "The WACky WorkSPACE manager for emACS"
-  :prefix "wacs-"
-  :group 'environment)
-
-(defcustom wacs-regexp-buffer-switching t
-  "Use regexp matching for buffer switching in `wacspace'.
-
-When set to t, :buffer option will use a regexp match if a
-buffer does not exist with the exact match."
-  :group 'wacspace
-  :type 'boolean)
-
-(defcustom wacs-save-frame (display-graphic-p)
-  "Save frame with `wacspace'.
-
-When set to t, wacspace will save the frame configuration as
-well as the window configuration.  Set to t by default in graphic
-display and nil if Emacs is run in a terminal."
-  :group 'wacspace
-  :type 'boolean)
-
-(defcustom wacs-project-base-file ".git"
-  "Default base file name in projects.
-
-Wacspace will assume that project base directories have this
-filename in them.  This variable be dynamically bound within
-helper functions.  When set to nil, wacspace will assume that the
-current directory is the base directory."
-  :group 'wacspace
-  :type 'string)
-
-(defcustom wacs-end-of-buffer-modes '(eshell-mode shell-mode comint-mode)
-  "Modes in which to scroll to the end of buffers.
-
-Major modes where wacspace will scroll to the end of the
-buffer after restoring or setting up."
-  :group 'wacspace
-  :type 'sexp)
-
 (require 'wacs-util)
 (require 'wacs-configuration)
 (require 'wacs-interactive)

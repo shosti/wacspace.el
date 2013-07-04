@@ -33,6 +33,46 @@
 (require 'cl-lib)
 (require 'wacs-util)
 
+(defgroup wacspace nil
+  "The WACky WorkSPACE manager for emACS"
+  :prefix "wacs-"
+  :group 'environment)
+
+(defcustom wacs-regexp-buffer-switching t
+  "Use regexp matching for buffer switching in `wacspace'.
+
+When set to t, :buffer option will use a regexp match if a
+buffer does not exist with the exact match."
+  :group 'wacspace
+  :type 'boolean)
+
+(defcustom wacs-save-frame (display-graphic-p)
+  "Save frame with `wacspace'.
+
+When set to t, wacspace will save the frame configuration as
+well as the window configuration.  Set to t by default in graphic
+display and nil if Emacs is run in a terminal."
+  :group 'wacspace
+  :type 'boolean)
+
+(defcustom wacs-project-base-file ".git"
+  "Default base file name in projects.
+
+Wacspace will assume that project base directories have this
+filename in them.  This variable be dynamically bound within
+helper functions.  When set to nil, wacspace will assume that the
+current directory is the base directory."
+  :group 'wacspace
+  :type 'string)
+
+(defcustom wacs-end-of-buffer-modes '(eshell-mode shell-mode comint-mode)
+  "Modes in which to scroll to the end of buffers.
+
+Major modes where wacspace will scroll to the end of the
+buffer after restoring or setting up."
+  :group 'wacspace
+  :type 'sexp)
+
 (defvar wacs/winconfs nil
   "The wacspace winconf alist.
 
@@ -74,6 +114,22 @@ instead.")
   "Hash table of functions to call before switching to projects.
 
 Keys are project names, values are functions.")
+
+(defun wacs-project-dir ()
+  "Return the project directory of `wacs-main-buffer'.
+
+Looks for `wacs-project-base-file'.  If not found, defaults to the
+current directory."
+  (-if-let (dir (buffer-file-name wacs-main-buffer))
+    (let ((fname (file-name-directory dir)))
+      (expand-file-name
+       (-if-let* ((base-file wacs-project-base-file)
+                  (project-dir (locate-dominating-file
+                                fname
+                                base-file)))
+         project-dir
+         (file-name-directory fname))))
+    default-directory))
 
 (defun wacs-project-name ()
   "Return the name of the current project."
