@@ -53,9 +53,36 @@ funcall FN."
   "Switch to the window with BUFFER."
   (select-window (get-buffer-window buffer)))
 
+(defconst wacs--boring-buffers
+  '("Minibuf"
+    "Echo Area"
+    "code-conver[a-z]+-work"
+    "\*Messages\*"
+    "\*Backtrace\*")
+  "Buffers where you don't care about the point (minibuffers and such).")
+
+(defun wacs--interesting-buffers ()
+  "Return buffers that are not in the boring list."
+  (let ((-compare-fn (lambda (s r) (string-match r s))))
+    (-filter (lambda (b)
+               (not (-contains? wacs--boring-buffers
+                                (buffer-name b))))
+             (buffer-list))))
+
 (defun wacs--buffer-point (buffer)
+  "Get the point for BUFFER."
   (with-current-buffer buffer
     (point)))
+
+(defun wacs--set-buffer-point (buffer position)
+  "Set the point in BUFFER to POSITION."
+  (-if-let (buffer-window
+            (car (-filter (lambda (w)
+                            (equal (window-buffer w) buffer))
+                          (window-list))))
+    (set-window-point buffer-window position)
+    (with-current-buffer buffer
+      (goto-char position))))
 
 (defun wacs--list->dotted-pair (list)
   "Change the current LIST pair and sub-list pair into dotted pairs."

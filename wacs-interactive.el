@@ -207,9 +207,8 @@ configuration."
         (if wacs-save-frame
             (set-frame-configuration config)
           (set-window-configuration config))
-        (--each (window-list)
-          (set-window-point it (wacs--alist-get (window-buffer it)
-                                               buffer-points)))
+        (--each (wacs--interesting-buffers)
+          (wacs--set-buffer-point it (wacs--alist-get it buffer-points)))
         (wacs--switch-to-window-with-buffer buffer)
         (wacs--update-open-projects (current-buffer) arg)
         (message "wacspace restored")
