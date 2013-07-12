@@ -292,7 +292,7 @@ of `defwacspace'. TARGET-CONDITION is the condition to alias to."
   (cons 'progn
         (append
          (-map (lambda (cond) `(defwacsalias ,cond
-                            ,target-condition))
+                                 ,target-condition))
                conditions))))
 
 ;;;###autoload
