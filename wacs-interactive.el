@@ -83,6 +83,15 @@ interpreted as an unescaped regexp."
           (switch-to-buffer buffer-string))
       (switch-to-buffer buffer-string))))
 
+(defmacro wacs--update-local-vars ()
+  "Update local vars in the current buffer.
+
+Variables from wacs--persistent-local-vars will be updated."
+  (cons 'progn
+        (-map (lambda (var)
+                `(setq-local ,var ,var))
+              wacs--persistent-local-vars)))
+
 (defun wacs--set-up-windows (config main-window)
   "Set up the windows according to the CONFIG.
 
@@ -100,8 +109,7 @@ MAIN-WINDOW is the window from which `wacspace' was called."
                           (wacs--switch-to-buffer
                            (cdr buffer-conf))))
                (:cmd (funcall (cdr buffer-conf)))))
-           (setq-local wacs-project-base-file
-                       wacs-project-base-file)))
+           (wacs--update-local-vars)))
   (wacs--switch-to-window-with-buffer wacs-main-buffer))
 
 (defun wacs--set-up-workspace (arg config)

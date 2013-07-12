@@ -107,6 +107,11 @@ instead.")
 
 Keys are project names, values are functions.")
 
+(defvar wacs--persistent-local-vars
+  '(wacs-project-base-file
+    wacs--project-name-fn)
+  "Variables that will become buffer-local.")
+
 (defun wacs-project-dir ()
   "Return the project directory of `wacs-main-buffer'.
 
