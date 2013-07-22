@@ -33,6 +33,7 @@
 (require 'wacs-configuration)
 (require 'dash)
 
+;;;###autoload
 (defun wacs-make-comint (name program &optional startfile &rest switches)
   "Make a project-specific comint buffer.
 
@@ -46,6 +47,7 @@ results, use within `defwacspace' configurations."
            (append (list name buffer-name program startfile) switches))
     (make-comint-in-buffer name buffer-name program startfile switches)))
 
+;;;###autoload
 (defun wacs-eshell ()
   "Open an eshell in the main project directory."
   (let ((default-directory (wacs-project-dir))
@@ -54,6 +56,7 @@ results, use within `defwacspace' configurations."
                                     ">")))
     (eshell)))
 
+;;;###autoload
 (defun wacs-shell ()
   "Open a new shell in the main project directory."
   (let ((default-directory (wacs-project-dir)))
