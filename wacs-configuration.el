@@ -1,6 +1,6 @@
 ;;; wacs-configuration.el
 
-;; Copyright © 2013 Emanuel Evans
+;; Copyright © 2013-2014 Emanuel Evans
 
 ;; Author: Emanuel Evans <emanuel.evans@gmail.com>
 
