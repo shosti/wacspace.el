@@ -236,7 +236,7 @@ configuration."
            (config (wacs--alist-get project wacs--open-projects))
            (buffer (car config))
            (last-prefix (cdr config)))
-      (set-buffer buffer)
+      (switch-to-buffer buffer)
       (wacspace last-prefix)
       (-when-let (after-switch (gethash project
                                         wacs--after-switch-fns))
