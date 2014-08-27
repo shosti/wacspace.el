@@ -9,8 +9,8 @@ Feature: Set up workspace
     (defwacspace (ruby-mode rinari-minor-mode)
       (:default
        (:winconf 3winv)
-       (:aux1 (:buffer "*rails console*"))
-       (:aux2 (:cmd eshell)))
+       (:aux1 "*rails console*")
+       (:aux2 eshell))
       (:1
        (:frame full))
       (:2
@@ -19,14 +19,14 @@ Feature: Set up workspace
       (:3
        (:winconf 2winh)
        (:frame right)
-       (:main (:buffer "*rails console*"))
-       (:aux1 (:buffer :main))))
+       (:main "*rails console*")
+       (:aux1 :main)))
 
     (defwacspace ruby-mode
       (:before run-ruby)
       (:default
        (:winconf 2winv)
-       (:aux1 (:buffer "*ruby*")))
+       (:aux1 "*ruby*"))
       (:1
        (:frame full))
       (:2
@@ -35,19 +35,19 @@ Feature: Set up workspace
       (:3
        (:winconf 2winh)
        (:frame right)
-       (:main (:buffer "*ruby*"))
-       (:aux1 (:buffer :main))))
+       (:main "*ruby*")
+       (:aux1 :main)))
 
     (defwacspace :default
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd shell))))
+       (:aux1 shell)))
 
     (defwacspace (:default rinari-minor-mode)
       (:default
        (:winconf 3winv)
-       (:aux1 (:cmd eshell))
-       (:aux2 (:cmd shell))))
+       (:aux1 eshell)
+       (:aux2 shell)))
     """
     And I am in buffer "*main*" in ruby-mode
 
@@ -81,7 +81,7 @@ Feature: Set up workspace
         (:before run-ruby)
         (:default
          (:winconf 2winv)
-         (:aux1 (:buffer "*ruby"))))
+         (:aux1 "*ruby")))
 
      (setq wacs-regexp-buffer-switching t)
      """
@@ -100,7 +100,7 @@ Feature: Set up workspace
      (defwacspace (ruby-mode (:fn in-foo-buffer))
        (:default
         (:winconf 2winv)
-        (:aux1 (:buffer "*bar*"))))
+        (:aux1 "*bar*")))
      """
      And I am in buffer "*foo*" in ruby-mode
      And I press "C-z C-w"
@@ -120,7 +120,7 @@ Feature: Set up workspace
      (defwacspace (ruby-mode (:var foo))
        (:default
         (:winconf 2winv)
-        (:aux1 (:buffer "*baz*"))))
+        (:aux1 "*baz*")))
      """
      And I am in buffer "*main*" in ruby-mode
      And I press "C-z C-w"
@@ -149,7 +149,7 @@ Feature: Set up workspace
     """
     (defwacspace octave-mode
       (:default
-       (:aux1 (:buffer "*scratch*"))))
+       (:aux1 "*scratch*")))
     """
     And I am in buffer "*md*" in octave-mode
     And I press "C-z C-w"

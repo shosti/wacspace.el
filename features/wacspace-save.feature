@@ -10,7 +10,7 @@ Feature: Save/restore workspace
       (:before run-ruby)
       (:default
        (:winconf 2winv)
-       (:aux1 (:buffer "*ruby*")))
+       (:aux1 "*ruby*"))
       (:1
        (:frame full))
       (:2
@@ -19,8 +19,8 @@ Feature: Save/restore workspace
       (:3
        (:winconf 2winh)
        (:frame right)
-       (:main (:buffer "*ruby*"))
-       (:aux1 (:buffer :main)))
+       (:main "*ruby*")
+       (:aux1 :main))
       (:4
        (:winconf 1win)))
 

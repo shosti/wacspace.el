@@ -9,13 +9,13 @@ Feature: Use aliases to organize similar modes
     (defwacspace (ruby-mode rinari-minor-mode)
       (:default
        (:winconf 3winv)
-       (:aux1 (:buffer "*rails console*"))
-       (:aux2 (:cmd eshell))))
+       (:aux1 "*rails console*")
+       (:aux2 eshell)))
 
      (defwacspace js-mode
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd eshell))))
+       (:aux1 eshell)))
 
      (defwacsalias (js-mode rinari-minor-mode)
       (ruby-mode rinari-minor-mode))
@@ -41,7 +41,7 @@ Feature: Use aliases to organize similar modes
      (defwacspace (js-mode rinari-minor-mode)
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd eshell))))
+       (:aux1 eshell)))
      """
      When I am in buffer "*js*" in javascript-mode
      And I turn on rinari-minor-mode

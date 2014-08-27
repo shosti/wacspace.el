@@ -12,7 +12,7 @@ Feature: Use wacspace to manage projects
     (defwacspace emacs-lisp-mode
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd wacs-eshell))))
+       (:aux1 wacs-eshell)))
 
     (setq wacs-project-base-file nil)
     """
@@ -28,7 +28,7 @@ Feature: Use wacspace to manage projects
     (defwacspace emacs-lisp-mode
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd wacs-eshell))))
+       (:aux1 wacs-eshell)))
 
     (setq wacs-project-base-file ".git")
     """
@@ -52,7 +52,7 @@ Feature: Use wacspace to manage projects
       (:base-file ".project")
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd wacs-shell))))
+       (:aux1 wacs-shell)))
     """
     And I create the directory "subdir"
     And I create the directory ".project"
@@ -71,7 +71,7 @@ Feature: Use wacspace to manage projects
                           "coolproj"))
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd wacs-eshell))))
+       (:aux1 wacs-eshell)))
     """
     And I am visiting the project file "main.el" in emacs-lisp-mode
     And I press "C-z C-w"
@@ -83,7 +83,7 @@ Feature: Use wacspace to manage projects
     (defwacspace emacs-lisp-mode
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd wacs-eshell))))
+       (:aux1 wacs-eshell)))
     """
     And I am visiting the project file "main.el" in emacs-lisp-mode
     And I press "C-z C-w"
@@ -104,9 +104,9 @@ Feature: Use wacspace to manage projects
     (defwacspace emacs-lisp-mode
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd wacs-eshell)))
+       (:aux1 wacs-eshell))
       (:1
-       (:aux1 (:buffer "*scratch*"))))
+       (:aux1 "*scratch*")))
     """
     And I am visiting the project file "main.el" in emacs-lisp-mode
     And I press "C-z C-1"
@@ -132,7 +132,7 @@ Feature: Use wacspace to manage projects
       (:after-switch (lambda () (incf switch-count)))
       (:default
        (:winconf 2winv)
-       (:aux1 (:cmd wacs-eshell))))
+       (:aux1 wacs-eshell)))
      """
      And I am visiting the project file "main.octave" in octave-mode
      And I press "C-z C-w"
@@ -158,7 +158,7 @@ Feature: Use wacspace to manage projects
      (defwacspace emacs-lisp-mode
        (:default
         (:winconf 2winv)
-        (:aux1 (:cmd wacs-eshell))))
+        (:aux1 wacs-eshell)))
      """
      When I am visiting the project file "main.el" in emacs-lisp-mode
      And I press "C-z C-w"

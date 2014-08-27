@@ -103,12 +103,20 @@ MAIN-WINDOW is the window from which `wacspace' was called."
         (select-window main-window)
         (other-window (string-to-number
                        (substring (symbol-name win-key) -1)))
-        (cl-case (car buffer-conf)
-          (:buffer (if (eq (cdr buffer-conf) :main)
-                       (switch-to-buffer wacs-main-buffer)
-                     (wacs--switch-to-buffer
-                      (cdr buffer-conf))))
-          (:cmd (funcall (cdr buffer-conf)))))
+        (cond ((or (eq buffer-conf :main)
+                  (and (consp buffer-conf) (eq (cdr buffer-conf) :main)))
+               (switch-to-buffer wacs-main-buffer))
+              ((stringp buffer-conf)
+               (wacs--switch-to-buffer buffer-conf))
+              ((symbolp buffer-conf)
+               (funcall buffer-conf))
+              ;; Backwards-compatibility for (:buffer "foo") syntax
+              ((and (consp buffer-conf) (eq (car buffer-conf) :buffer))
+               (wacs--switch-to-buffer (cdr buffer-conf)))
+              ;; Backwards-compatibility for (:cmd bar) syntax
+              ((and (consp buffer-conf) (eq (car buffer-conf) :cmd))
+               (funcall (cdr buffer-conf)))
+              (t (error "Invalid wacspace buffer configuration."))))
       (wacs--update-local-vars)))
   (wacs--switch-to-window-with-buffer wacs-main-buffer))
 

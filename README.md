@@ -89,16 +89,16 @@ started:
   (:after-switch rbenv-use-corresponding)
   (:default
    (:winconf 3winv)
-   (:aux1 (:buffer "*rails console*"))
-   (:aux2 (:cmd eshell)))
+   (:aux1 "*rails console*")
+   (:aux2 eshell))
   (:1
    (:frame full))
   (:2
    (:winconf 2winh)
    (:frame left))
   (:3
-   (:main (:buffer "*rails console*"))
-   (:aux1 (:buffer :main))
+   (:main "*rails console*")
+   (:aux1 :main)
    (:winconf 2winh)
    (:frame right)
 ```
@@ -152,11 +152,11 @@ wacspace associated with a major mode is found:
 ```cl
 (defwacspace (:default)
  (:default
-  (:aux1 (:cmd wacs-eshell))))
+  (:aux1 wacs-eshell)))
 
 (defwacspace (:default rinari-minor-mode)
  (:before rinari-console)
- (:aux1 (:buffer "*rails console*"))
+ (:aux1 "*rails console*")
 ```
 
 The `:default` wacspace (without a minor mode condition) is special:
