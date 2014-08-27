@@ -166,7 +166,7 @@ current directory."
   (wacs--alist-get (or (cdr entry) :default)
                    (get (car entry) 'wacs-config)))
 
-(cl-defun wacs--get-config (&optional arg)
+(defun wacs--get-config (&optional arg)
   "Get the config with prefix ARG associated with the current buffer.
 
 First, search for a wacspace configuration with a satisfactory
