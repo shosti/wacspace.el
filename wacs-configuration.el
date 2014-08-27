@@ -1,4 +1,4 @@
-;;; wacs-configuration.el
+;;; wacs-configuration.el --- Configuration for wacspace -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2014 Emanuel Evans
 
@@ -118,14 +118,14 @@ Keys are project names, values are functions.")
 Looks for `wacs-project-base-file'.  If not found, defaults to the
 current directory."
   (-if-let (dir (buffer-file-name wacs-main-buffer))
-    (let ((fname (file-name-directory dir)))
-      (expand-file-name
-       (-if-let* ((base-file wacs-project-base-file)
-                  (project-dir (locate-dominating-file
-                                fname
-                                base-file)))
-         project-dir
-         (file-name-directory fname))))
+      (let ((fname (file-name-directory dir)))
+        (expand-file-name
+         (-if-let* ((base-file wacs-project-base-file)
+                    (project-dir (locate-dominating-file
+                                  fname
+                                  base-file)))
+             project-dir
+           (file-name-directory fname))))
     default-directory))
 
 (defun wacs-project-name ()
@@ -246,7 +246,7 @@ for the default configuration. Then give up. Whew."
 The CONDITION can either be a major mode (such as
 `emacs-lisp-mode') or a (MAJOR-MODE AUXILIARY-CONDITION) pair.
 The auxiliary condition can be a variable (such as a minor mode),
-an inline lambda, or a (:fn FN) pair. For full documentation of
+an inline lambda, or a (:fn FN) pair.  For full documentation of
 CONFIGURATION options, see the README.
 
 Some examples:
@@ -278,7 +278,7 @@ Some examples:
   "Define a wacspace alias from CONDITION to TARGET-CONDITION.
 
 When CONDITION is satisfied and `wacspace' is invoked, the
-configuration for TARGET-CONDITION will be run. For full details
+configuration for TARGET-CONDITION will be run.  For full details
 of CONDITION and TARGET-CONDITION, see the docstring for
 `defwacspace'"
   (let* ((mode (car (wacs--to-cons condition)))
@@ -293,11 +293,11 @@ of CONDITION and TARGET-CONDITION, see the docstring for
   "Define multiple aliases for a mode.
 
 CONDITIONS should be a list of conditions according to the rules
-of `defwacspace'. TARGET-CONDITION is the condition to alias to."
+of `defwacspace'.  TARGET-CONDITION is the condition to alias to."
   (cons 'progn
         (append
          (-map (lambda (cond) `(defwacsalias ,cond
-                                 ,target-condition))
+                            ,target-condition))
                conditions))))
 
 ;;;###autoload
@@ -305,7 +305,7 @@ of `defwacspace'. TARGET-CONDITION is the condition to alias to."
   "Define a wacspace window configuration named CONF-NAME.
 
 BODY is the body of a function to be run when the configuration
-is run (e.g. a sequence of window splitting commands). The
+is run (e.g. a sequence of window splitting commands).  The
 function need not stop with the original window active."
   `(wacs--alist-put  ',conf-name
                      '(lambda () ,@body)

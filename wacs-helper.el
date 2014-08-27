@@ -1,4 +1,4 @@
-;;; wacs-helper.el
+;;; wacs-helper.el --- Helper methods for wacspace -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2014 Emanuel Evans
 

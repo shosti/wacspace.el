@@ -1,4 +1,4 @@
-;;; wacs-util.el
+;;; wacs-util.el --- wacspace utility functions and macros -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2014 Emanuel Evans
 
@@ -80,7 +80,7 @@ funcall FN."
             (car (-filter (lambda (w)
                             (equal (window-buffer w) buffer))
                           (window-list))))
-    (set-window-point buffer-window position)
+      (set-window-point buffer-window position)
     (with-current-buffer buffer
       (goto-char position))))
 

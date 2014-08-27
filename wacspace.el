@@ -1,4 +1,4 @@
-;;; wacspace.el --- The WACky WorkSPACE manager for emACS
+;;; wacspace.el --- The WACky WorkSPACE manager for emACS -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2014 Emanuel Evans
 
@@ -7,7 +7,7 @@
 ;; Version: 0.4.2
 ;; Created: 26 March 2013
 ;; Keywords: workspace
-;; Package-Requires: ((dash "1.2.0") (cl-lib "0.2"))
+;; Package-Requires: ((emacs "24") (dash "1.2.0"))
 
 ;; This file is not part of GNU Emacs.
 

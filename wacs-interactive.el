@@ -1,4 +1,4 @@
-;;; wacs-interactive.el
+;;; wacs-interactive.el --- Interactive commands for wacspace -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2014 Emanuel Evans
 
@@ -43,16 +43,16 @@
   "Run winconf with name CONF-NAME."
   (delete-other-windows)
   (-if-let (winconf (wacs--alist-get conf-name wacs--winconfs))
-    (let ((main-window (selected-window)))
-      (funcall winconf)
-      (select-window main-window)
-      main-window)
+      (let ((main-window (selected-window)))
+        (funcall winconf)
+        (select-window main-window)
+        main-window)
     (error "No winconf with name: %s" conf-name)))
 
 (defun wacs--set-frame (frame)
   "Set the frame using the function set for FRAME."
   (-if-let (frame-fn (wacs--alist-get frame wacs--frame-fns))
-    (funcall frame-fn)
+      (funcall frame-fn)
     (message "No frame fn specified for frame alignment %s" frame)))
 
 (cl-defmacro wacs--with-property ((prop) &body body)
@@ -71,7 +71,7 @@ interpreted as an unescaped regexp."
             (car (--filter (string= buffer-string
                                     (buffer-name it))
                            (buffer-list))))
-    (switch-to-buffer buffer)
+      (switch-to-buffer buffer)
     (if wacs-regexp-buffer-switching
         (-if-let (buffer
                   (car
@@ -79,14 +79,14 @@ interpreted as an unescaped regexp."
                     (string-match-p (regexp-quote buffer-string)
                                     (buffer-name it))
                     (buffer-list))))
-          (switch-to-buffer buffer)
+            (switch-to-buffer buffer)
           (switch-to-buffer buffer-string))
       (switch-to-buffer buffer-string))))
 
 (defmacro wacs--update-local-vars ()
   "Update local vars in the current buffer.
 
-Variables from wacs--persistent-local-vars will be updated."
+Variables from `wacs--persistent-local-vars' will be updated."
   (cons 'progn
         (-map (lambda (var)
                 `(setq-local ,var ,var))
@@ -98,26 +98,26 @@ Variables from wacs--persistent-local-vars will be updated."
 MAIN-WINDOW is the window from which `wacspace' was called."
   (-each (-take (length (window-list))
                 '(:main :aux1 :aux2 :aux3 :aux4 :aux5))
-         (lambda (win-key)
-           (-when-let (buffer-conf (wacs--alist-get win-key config))
-             (select-window main-window)
-             (other-window (string-to-number
-                            (substring (symbol-name win-key) -1)))
-             (cl-case (car buffer-conf)
-               (:buffer (if (eq (cdr buffer-conf) :main)
-                            (switch-to-buffer wacs-main-buffer)
-                          (wacs--switch-to-buffer
-                           (cdr buffer-conf))))
-               (:cmd (funcall (cdr buffer-conf)))))
-           (wacs--update-local-vars)))
+    (lambda (win-key)
+      (-when-let (buffer-conf (wacs--alist-get win-key config))
+        (select-window main-window)
+        (other-window (string-to-number
+                       (substring (symbol-name win-key) -1)))
+        (cl-case (car buffer-conf)
+          (:buffer (if (eq (cdr buffer-conf) :main)
+                       (switch-to-buffer wacs-main-buffer)
+                     (wacs--switch-to-buffer
+                      (cdr buffer-conf))))
+          (:cmd (funcall (cdr buffer-conf)))))
+      (wacs--update-local-vars)))
   (wacs--switch-to-window-with-buffer wacs-main-buffer))
 
-(defun wacs--set-up-workspace (arg config)
-  "Given ARG and CONFIG, set up the workspace."
+(defun wacs--set-up-workspace (config)
+  "Set up the workspace according to CONFIG."
   (let ((wacs-project-base-file
          (or (wacs--alist-get :base-file config)
-             wacs-project-base-file
-             (file-name-nondirectory (buffer-file-name))))
+            wacs-project-base-file
+            (file-name-nondirectory (buffer-file-name))))
         (wacs--project-name-fn (wacs--alist-get :project-name-fn
                                                 config)))
     (wacs--with-property (before)
@@ -157,8 +157,8 @@ MAIN-WINDOW is the window from which `wacspace' was called."
 If there is a saved configuration with numeric prefix ARG,
 restore that.  Otherwise, set up your workspace based on your
 wacspace configuration.  If called with universal prefix
-arg (\\[universal-argument]), force reconfiguration even if there is a saved
-workspace."
+arg (\\[universal-argument]), force reconfiguration even if there
+is a saved workspace."
   (interactive "P")
   (when (wacs--u-prefix? arg)
     (wacs-clear-saved (current-buffer))
@@ -166,8 +166,8 @@ workspace."
   (unless (wacspace-restore arg)
     (-if-let* ((wacs-main-buffer (current-buffer))
                (config (wacs--get-config arg)))
-      (progn (wacs--set-up-workspace arg config)
-             (wacspace-save arg))
+        (progn (wacs--set-up-workspace config)
+               (wacspace-save arg))
       (error
        "No wacspace configuration available for the current mode"))))
 
@@ -251,10 +251,10 @@ current buffer."
   (interactive)
   (let ((buffer (or buffer (current-buffer))))
     (-each (gethash buffer wacs--saved-workspaces)
-           (lambda (entry)
-             (-each (cddr entry)
-                    (lambda (buffer)
-                      (remhash buffer wacs--saved-workspaces)))))))
+      (lambda (entry)
+        (-each (cddr entry)
+          (lambda (buffer)
+            (remhash buffer wacs--saved-workspaces)))))))
 
 (defun wacs-clear-all-saved ()
   "Clear all saved workspaces from this session."

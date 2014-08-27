@@ -1,4 +1,4 @@
-;;; wacs-init.el
+;;; wacs-init.el --- wacspace initialization -*- lexical-binding: t -*-
 
 ;; Copyright © 2013-2014 Emanuel Evans
 
