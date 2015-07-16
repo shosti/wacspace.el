@@ -1,4 +1,4 @@
-wacspace.el [![Build Status](https://travis-ci.org/shosti/wacspace.el.png)](https://travis-ci.org/shosti/wacspace.el)
+wacspace.el [![Build Status](https://travis-ci.org/shosti/wacspace.el.png)](https://travis-ci.org/shosti/wacspace.el) [![MELPA](http://melpa.org/packages/wacspace-badge.svg)](http://melpa.org/#/wacspace)
 ===========
 
 The WACky WorkSPACE manager for emACS.
