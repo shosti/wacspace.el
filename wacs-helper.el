@@ -59,7 +59,10 @@ results, use within `defwacspace' configurations."
 ;;;###autoload
 (defun wacs-shell ()
   "Open a new shell in the main project directory."
-  (let ((default-directory (wacs-project-dir)))
+  (let ((default-directory (wacs-project-dir))
+        (display-buffer-alist
+         (cons '("\\*shell\\*" (display-buffer-same-window))
+               display-buffer-alist)))
     (shell (concat "*shell*<" (wacs-project-name) ">"))))
 
 (provide 'wacs-helper)
